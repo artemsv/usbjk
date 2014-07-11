@@ -1,0 +1,2 @@
+warnings in directory c:\projects\usbjk\usb\src
+c:\projects\usbjk\usb\src\.\usbjk.rc(40) : warning RC4003: not enough actual parameters for macro '_ANSISTRING'

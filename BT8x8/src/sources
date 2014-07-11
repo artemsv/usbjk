@@ -1,0 +1,17 @@
+BROWSER_INFO=1
+BSCMAKE_FLAGS=$(BSCMAKE_FLAGS) -n
+
+TARGETNAME=bt8x8
+TARGETTYPE=DRIVER
+
+INCLUDES = ..\inc\
+RUN_WPP= $(sources) -km
+
+NO_BINPLACE=1
+
+KMDF_VERSION=1
+
+SOURCES=main.c
+
+!include $(WDF_ROOT)\project.mk
+

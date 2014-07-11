@@ -1,0 +1,74 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "BTVtest"=..\BTVtest\BTVtest.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name LKbtv
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ByteCoder"=..\ByteCoder\ByteCoder.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name LkBinutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "LKbtv"=.\LKbtv.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name LkBinutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "LkBinutil"=..\..\..\engine\LkBinutil\LkBinutil.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

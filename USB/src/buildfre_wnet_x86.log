@@ -1,0 +1,21 @@
+BUILD: Examining c:\projects\usbjk\usb\src directory for files to compile.
+before AssemblyIdentity_AfterReadAllSources
+after AssemblyIdentity_AfterReadAllSources
+skipping post pass 0 command
+Compiling and Linking c:\projects\usbjk\usb\src *************
+'nmake.exe /nologo BUILDMSG=Stop. -i BUILD_PASS=PASS2 LINKONLY=1 NOPASS0=1 MAKEDIR_RELATIVE_TO_BASEDIR= MAKEDIR_LOWERCASE=c:\projects\usbjk\usb\src'
+BUILDMSG: _NT_TARGET_VERSION SET TO WS03
+BUILDMSG: error BLD1007 : BROWSER_INFO defined in sources file - this is a user environment setting (c:\projects\usbjk\usb\src)
+c:\projects\usbjk\usb\src\objfre_wnet_x86\i386\echo.msg not found
+Microsoft (R) Windows (R) Resource Compiler Version 6.0.5724.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+.\usbjk.rc(40) : warning RC4003: not enough actual parameters for macro '_ANSISTRING'
+warnings in directory c:\projects\usbjk\usb\src
+c:\projects\usbjk\usb\src\.\usbjk.rc(40) : warning RC4003: not enough actual parameters for macro '_ANSISTRING'
+	cl.exe @c:\projects\usbjk\usb\src\objfre_wnet_x86\i386\cl.rsp
+	link.exe /out:objfre_wnet_x86\i386\usbjk.sys /machine:ix86 @C:\DOCUME~1\Admin\LOCALS~1\Temp\nm2DA.tmp
+	bscmake.exe  -n -o "objfre_wnet_x86\i386\usbjk.bsc" @c:\projects\usbjk\usb\src\objfre_wnet_x86\i386\bscmake.rsp
+Microsoft Browse Information Maintenance Utility Version 9.00.21022
+Copyright (C) Microsoft Corporation. All rights reserved.
+

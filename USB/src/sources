@@ -1,0 +1,17 @@
+# $Id$
+BROWSER_INFO=1
+BSCMAKE_FLAGS=$(BSCMAKE_FLAGS) -n
+
+TARGETNAME=usbjk
+TARGETTYPE=DRIVER
+
+#INCLUDES = ..\inc\
+
+NO_BINPLACE=1
+
+KMDF_VERSION=1
+
+SOURCES=usbjk.c utils.c usbjk.rc
+
+#!include $(WDF_ROOT)\project.mk
+

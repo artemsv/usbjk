@@ -1,0 +1,57 @@
+;--------------------------------------------------------------------------------
+;LKsolutions company
+;provide multimedia communication with 3D technology
+;
+; Enterprise for humanbeings
+; Technology for humanbeings
+; Hope for humanbeings
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=MEDIA
+ClassGuid={D0C7DD7C-1835-415f-9F29-2245DD1DE3FB}
+Provider="LKsolutions"
+DriverVer=08/08/2002/1.0.0
+
+;--------------------------------------------------------------------------------
+; copy 
+[SourceDisksNames]
+1="Install Disk 1"
+
+[SourceDisksFiles]
+LKbtv.sys=1
+
+[DestinationDirs]
+DefaultDestDir=12
+
+;--------------------------------------------------------------------------------
+; class install
+[ClassInstall32]
+AddReg=LKClassPci
+
+[LKClassPci]
+HKR,,,,"LKsolutions company"
+HKR,,Icon,,"-5"
+
+;--------------------------------------------------------------------------------
+; product register
+[Manufacturer]
+"LKsolutions Product"=LKDevice;
+
+[LKDevice]
+"BT878 Chip Video Capture Device"=VideoDevice,PCI\VEN_109E&DEV_036E
+
+[VideoDevice]
+CopyFiles=@LKbtv.sys
+
+[VideoDevice.Services]
+AddService=LKbtv,0x2, VideoDeviceServiceInstall
+
+[VideoDeviceServiceInstall]
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%12%\LKbtv.sys
+
+;--------------------------------------------------------------------------------
+[Strings]

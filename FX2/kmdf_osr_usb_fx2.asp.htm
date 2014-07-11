@@ -1,0 +1,1853 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Developing a WDF USB Kernel Mode Driver for the OSR USB FX2 - The Code Project - System</title>
+
+
+
+
+<!-- base -->
+<meta http-equiv="Reply-to" content="mailto:webmaster@codeproject.com">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="MS.LOCALE" content="en-US">
+<meta name="Description" content="This article describes the process of developing a USB Kernel mode device driver using the WDF Kernel Mode Driver Foundation.">
+<meta name="Search.TopicType" content="kbArticle">
+<meta name="Author" content="Bruno van Dooren">
+<meta name="Search.PublishDate" content="29 Mar 2006 14:00:00 GMT">
+<meta name="Search.RevisedDate" content="29 Mar 2006 14:00:00 GMT">
+
+<meta name="keywords" content="Free source code, , Visual C++, MFC, Windows, Device driver, Kernel mode, WDF, KMDF, USB">
+<meta name="Copyright" content="Article content copyright Bruno van Dooren, 2006, everthing else Copyright © CodeProject, 1999-2007, All Rights Reserved.">
+<link rel="alternate" type="application/rss+xml" title="CodeProject Lounge Postings" href="http://www.codeproject.com/webservices/LoungeRSS.aspx">
+<link rel="alternate" type="application/rss+xml" title="CodeProject Latest articles - All topics" href="http://www.codeproject.com/webservices/articlerss.aspx?cat=1">
+<link rel="alternate" type="application/rss+xml" title="CodeProject Latest articles - MFC / C++" href="http://www.codeproject.com/webservices/articlerss.aspx?cat=2">
+<link rel="alternate" type="application/rss+xml" title="CodeProject Latest articles - C#" href="http://www.codeproject.com/webservices/articlerss.aspx?cat=3">
+<link rel="alternate" type="application/rss+xml" title="CodeProject Latest articles - ASP.NET" href="http://www.codeproject.com/webservices/articlerss.aspx?cat=4">
+<link rel="alternate" type="application/rss+xml" title="CodeProject Latest articles - .NET" href="http://www.codeproject.com/webservices/articlerss.aspx?cat=5">
+<link rel="alternate" type="application/rss+xml" title="CodeProject Latest articles - VB.NET" href="http://www.codeproject.com/webservices/articlerss.aspx?cat=6">
+<link rel="search" type="application/opensearchdescription+xml" title="The Code Project" href="http://www.codeproject.com/info/OpenSearch.xml">
+<link rel="icon" href="http://www.codeproject.com/favicon.ico" type="image/ico">
+<link rel="SHORTCUT ICON" href="http://www.codeproject.com/favicon.ico">
+<link rel="stylesheet" type="text/css" href="kmdf_osr_usb_fx2.asp_files/global.css">
+
+<link rel="stylesheet" type="text/css" href="kmdf_osr_usb_fx2.asp_files/netscape6.css">
+
+<script language="javascript" src="kmdf_osr_usb_fx2.asp_files/oncopy.js"></script>
+<script language="javascript">
+if (top != self) top.location.href = location.href;
+if (typeof(DemoUrl) != "undefined")
+	document.write('<me' + 'ta http' + '-equiv="re' + 'fresh" con' + 'tent="1;url=' + DemoUrl + '">');
+</script></head><body style="margin: 0pt; background-color: rgb(255, 255, 255);" oncopy="return copyCode();" alink="red" bgcolor="white" link="blue" text="black" vlink="navy">
+
+<!-- BEGIN I/PRO PAGE TAG - COPYRIGHT 2006 I/PRO Corporation ALL RIGHTS RESERVED. --> 
+<script language="JavaScript"> 
+var LSPT=""; 
+LSPT += "?durl=" + escape(document.URL); 
+LSPT += "&hostname=" + location.hostname; 
+LSPT += "&url=" + location.pathname; 
+LSPT += "&query=" + escape(location.search) + escape(location.hash); 
+LSPT += "&referrer=" + escape(document.referrer); 
+LSPT += "&browser=" + escape(navigator.appName); 
+LSPT += "&version=" + escape(navigator.appVersion); 
+LSPT += "&os=" + escape(navigator.platform); 
+LSPT += "&xdomain=codeproject.com"; 
+LSPT += "&custid=codeproject"; 
+</script> 
+<script language="Javascript"> 
+document.write('<img src=http://'+'content.ipro.com/images/pixel.gif'+LSPT+' height="1" width="1" style="position:absolute;top:0px;left:0px">'); 
+</script><img src="kmdf_osr_usb_fx2.asp_files/pixel.htm" style="position: absolute; top: 0px; left: 0px;" height="1" width="1"> 
+<noscript> <img
+src="http://content.ipro.com/images/pixel.gif?version=nonjava&xdomain=codeproject.com"
+height="1" width="1" style="position:absolute;top:0px;left:0px"> </noscript> 
+<!-- END I/PRO PAGE TAG -->
+
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+<tbody><tr>
+	<td class="HeaderLogo"><a href="http://www.codeproject.com/"><img alt="Home" src="kmdf_osr_usb_fx2.asp_files/codeproject225x90.gif" border="0" height="90"></a></td>
+	<td class="HeaderBanner"><span id="AdBanner4"><script language="javascript">document.write("<a href=\"/script/admentor/admentorredir.asp?id=3029&way=ban\" target=_blank><img src=\"/script/ann/ServeImg.aspx?File=%2Fscript%2Fadmentor%2Fimages%2FDundas%5FChartOLAP55%5F728x90%2Egif&C=False&id=3029&cb=1078679\" alt=\"\" border=0 width=728 height=90></a>");</script><a href="http://www.codeproject.com/script/admentor/admentorredir.asp?id=3029&amp;way=ban" target="_blank"><img src="kmdf_osr_usb_fx2.asp_files/ServeImg_004.htm" alt="" border="0" height="90" width="728"></a></span></td>
+</tr>
+<tr><td colspan="2">
+<table class="MemberNavBar" border="0" cellpadding="5" cellspacing="0" width="100%">
+<tbody><tr valign="middle">
+
+<td class="smallText" style="font-weight: bold;">3,969,742 members and growing! &nbsp;
+15,269 now online.
+</td>
+
+
+<td class="userNavText" align="right">
+
+
+<script type="text/javascript">
+function signup(){document.location.href="/script/profile/modify.asp";}
+function ShowJoin()
+{
+document.write("<input type=\"button\" class=FormButton onclick=\"return signup();\" value='Join!'>");
+document.write("<input type=\"hidden\" name=\"fld_quicksign\" value=\"true\" />");
+}
+</script>
+<form name="subForm" id="subForm" action="/script/profile/process_logon.asp" method="post" style="margin: 0pt; padding: 0pt;">
+Email <input class="tinyText" name="Email" id="Email" style="width: 100px;" type="text">
+Password <input class="tinyText" name="Password" id="Password" style="width: 60px;" type="password">
+<input value="Sign in" class="FormButton" type="submit">
+<script type="text/javascript">ShowJoin();</script><input class="FormButton" onclick="return signup();" value="Join!" type="button"><input name="fld_quicksign" value="true" type="hidden">
+<input checked="checked" name="cookie" id="RememberMeCheck" type="checkbox"><label for="RememberMeCheck">Remember me?</label>
+<a href="http://www.codeproject.com/script/profile/forgot.asp"><img src="kmdf_osr_usb_fx2.asp_files/HLP.GIF" align="absmiddle" border="0" height="16" width="16">
+Password problem?</a>
+</form>
+
+
+</td>
+</tr>
+</tbody></table></td></tr>
+<tr><td colspan="2">
+<table class="SiteNavBar" id="tblSiteToolbar" cellpadding="0" cellspacing="0">
+<tbody><tr>
+<td><a href="http://www.codeproject.com/">Home</a></td>
+<td nowrap="nowrap"><a href="http://www.codeproject.com/index.asp?cat=2">MFC/C++</a></td>
+<td><a href="http://www.codeproject.com/index.asp?cat=3">C#</a></td>
+<td nowrap="nowrap"><a href="http://www.codeproject.com/index.asp?cat=4">ASP.NET</a></td>
+<td nowrap="nowrap"><a href="http://www.codeproject.com/index.asp?cat=6">VB.NET</a></td>
+<td nowrap="nowrap"><a href="http://www.codeproject.com/index.asp?cat=8">Architect</a></td>
+<td nowrap="nowrap"><a href="http://www.codeproject.com/index.asp?cat=9">SQL</a></td>
+<td class="SelCat" nowrap="nowrap"><a href="http://www.codeproject.com/index.asp?cat=1">All Topics</a></td>
+<td width="100%">&nbsp;</td>
+<td>
+	<div id="MenuPos" style="position: relative; width: 300px; height: 22px; top: 1px;">
+	<table id="MPH" style="border-width: 0pt; height: 20px; display: none;" cellpadding="0" cellspacing="0" width="300">
+	<tbody><tr valign="middle">
+		<td style="border-width: 0pt;" nowrap="nowrap"><a href="http://www.codeproject.com/info/faq.asp">Help!</a></td>
+		<td style="border-width: 0pt;" nowrap="nowrap"><a href="http://www.codeproject.com/info/latest.asp">Articles</a></td>
+		<td style="border-width: 0pt;" nowrap="nowrap"><a href="http://www.codeproject.com/script/comments/forums.asp">Message Boards</a></td>
+		
+		<td style="border-width: 0pt;" nowrap="nowrap"><a href="http://www.codeproject.com/lounge.asp">Lounge</a></td>
+	</tr>
+	</tbody></table>
+	</div>
+</td>
+</tr>
+</tbody></table>
+<script type="text/javascript">function Go(){return}</script>
+<script type="text/javascript" src="kmdf_osr_usb_fx2.asp_files/cpmenu_var.js"></script>
+<script type="text/javascript" src="kmdf_osr_usb_fx2.asp_files/menu10_com.js"></script>
+<script type="text/javascript">
+var MPH = document.getElementById("MPH");
+if (MPH) MPH.style.display='none';
+</script>
+</td></tr>
+
+
+<tr><td colspan="2">
+
+	<table class="ArticleHeader" cellpadding="3" cellspacing="0" width="100%">
+	<tbody><tr valign="top">
+		<td class="smallText" style="padding-right: 10px;"><a href="http://www.codeproject.com/?cat=1">All Topics</a>, <a href="http://www.codeproject.com/?cat=2">MFC / C++</a> &gt;&gt; <a href="http://www.codeproject.com/system/">System</a> &gt;&gt; <a href="http://www.codeproject.com/system/#Device+Drivers">Device Drivers</a> &nbsp;(<span class="SmallText" style="color: green; font-weight: bold;">Beginner</span>)<br>
+			
+			<br>
+			<div style="font-weight: bold; font-size: 16pt;">Developing a WDF USB Kernel Mode Driver for the OSR USB FX2</div>
+			<b>By <a href="http://www.codeproject.com/script/Articles/list_articles.asp?userid=2578587">Bruno van Dooren</a></b>.
+			
+			<br><br><div style="font-size: 12px;">This article describes the process of developing a USB Kernel mode device driver using the WDF Kernel Mode Driver Foundation.</div>
+		</td>
+		<td class="smallText" style="width: 200px;">
+			C++, C<br> Windows (WinXP, Win2003)<br> Win32, Win64, VS<br> Dev<br>
+			<span style="padding-right: 2ex;">Posted</span>: <b>30 Mar 2006</b><br>
+			<span style="padding-right: 3ex;">Views</span>: <b>32,442</b>
+		</td>
+	</tr>
+	
+	
+
+	
+
+
+</tbody></table>
+<table border="0" cellpadding="0" cellspacing="0">
+<tbody><tr valign="top">
+
+	
+	<td rowspan="2" class="LHNavBar">
+	
+	<!-- Yes, there are IE hacks that will allow us to create a min-width DIV 
+	     (eg http://www.webreference.com/programming/min-width/) but I couldn't
+	     be arsed. Wait for it in v2.0 -->
+	
+	<div class="FeatureBlockHeader">Announcements</div>
+<div class="FeatureBlockContent RHFeatureBar">
+
+<div style="padding-top: 5px;"><img src="kmdf_osr_usb_fx2.asp_files/vista20.gif" alt="Vista" style="float: left; padding-right: 10px;" height="20" width="20">
+<a href="http://www.codeproject.com/redir.aspx?id=2666">Vista API competition<br>$10,000 in  prizes</a></div>
+
+<div style="padding-top: 5px;"><img src="kmdf_osr_usb_fx2.asp_files/gadgets20.gif" alt="Vista" style="float: left; padding-right: 10px;" height="20" width="20">
+<a href="http://www.codeproject.com/redir.aspx?id=2848">Vista Gadget comp: $2,000 in prizes</a></div>
+
+<div style="padding-top: 5px;"><img src="kmdf_osr_usb_fx2.asp_files/MobilePC_20.jpg" alt="Vista" style="float: left; padding-right: 10px;" height="20" width="15">
+<a href="http://www.codeproject.com/system/redir.aspx?id=3220">Vista Mobile comp:<br>Win a Samsung UMPC</a></div>
+
+<div style="padding-top: 5px;"><img src="kmdf_osr_usb_fx2.asp_files/prize_winner_sm.gif" alt="Comp" style="float: left; padding-right: 10px; margin-left: 7px; margin-right: 10px;" height="20" width="10"><a href="http://www.codeproject.com/script/competitions/monthly/">Monthly Competition</a></div>
+
+</div>	<center>
+<script language="javascript">document.write("<a href=\"/script/admentor/admentorredir.asp?id=2769&way=ban\" target=_blank><img src=\"/script/ann/ServeImg.aspx?File=%2Fscript%2Fadmentor%2Fimages%2FXoreax%5F160x600v2%2Egif&C=False&id=2769&cb=1078690\" alt=\"Xoreax cuts VS build times by up to 90%\" border=0 width=160 height=600></a>");</script><a href="http://www.codeproject.com/script/admentor/admentorredir.asp?id=2769&amp;way=ban" target="_blank"><img src="kmdf_osr_usb_fx2.asp_files/ServeImg_003.htm" alt="Xoreax cuts VS build times by up to 90%" border="0" height="600" width="160"></a>
+</center>
+<br><br>
+
+	
+	<img src="kmdf_osr_usb_fx2.asp_files/t.gif" height="1" width="160">
+	
+	</td>
+	
+
+	<td width="100%">
+
+		<table class="SearchHeaderBar" cellspacing="0" width="100%">
+<tbody><tr>
+<td align="right" nowrap="nowrap" valign="middle" width="60%">
+
+	<form method="post" action="/info/search.asp" name="Search" style="margin: 0pt;">
+	<b>Search &nbsp;</b><input class="smallText" name="target" style="width: 200px;">
+	<select style="font-weight: bold; font-size: 8pt;" name="st">
+		<option value="kw">Articles</option>
+		<option value="au">Authors</option>
+	</select>
+	<input style="font-weight: bold; font-size: 8pt;" value=" Go! " type="submit"> &nbsp;
+	</form>
+</td>
+
+<td class="tinyText" nowrap="nowrap">
+<a href="http://www.codeproject.com/info/search.asp">Advanced Search</a><br>
+<a href="http://www.codeproject.com/script/articles/sections.asp">Sitemap</a> 
+
+
+</td>
+</tr>
+</tbody></table>
+		
+		<table width="100%">
+		<tbody><tr valign="top">
+		<td class="SmallText" nowrap="nowrap"><table><tbody><tr><td class="smallText" nowrap="nowrap"><img src="kmdf_osr_usb_fx2.asp_files/print.gif" align="absmiddle"> <a href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?print=true" target="_print">Print</a></td><td class="smallText" nowrap="nowrap"><img src="kmdf_osr_usb_fx2.asp_files/sitebuild_icon.gif" align="absmiddle"><a href="http://www.codeproject.com/script/submit/ReportProblem.asp?GUID=kmdf%5Fosr%5Fusb%5Ffx2%2Fsystem3%2F30%2F2006">Broken Article?</a></td><td class="smallText" nowrap="nowrap"><img src="kmdf_osr_usb_fx2.asp_files/link.gif" align="absmiddle"><a href="http://www.codeproject.com/script/profile/add_bookmark.asp?t=0&amp;ct=%2Fsystem%2Fkmdf%5Fosr%5Fusb%5Ffx2%2Easp&amp;guid=kmdf%5Fosr%5Fusb%5Ffx2%2Fsystem3%2F30%2F2006">Bookmark</a></td><td class="smallText" nowrap="nowrap"><img src="kmdf_osr_usb_fx2.asp_files/mail_small.gif" align="absmiddle"> <a href="#__comments">Discuss</a></td><td class="smallText" nowrap="nowrap"><img src="kmdf_osr_usb_fx2.asp_files/mail.gif" align="absmiddle"> <a href="http://www.codeproject.com/script/recommend/form.asp?guid=kmdf%5Fosr%5Fusb%5Ffx2%2Fsystem3%2F30%2F2006">Send to a friend</a></td></tr></tbody></table>
+		</td>
+		<td align="right" nowrap="nowrap"><a name="__top"></a><table><tbody><tr><td class="smallText" align="right">40 votes  for this article.</td><td>
+<table border="2" cellpadding="0" cellspacing="0"><tbody><tr>
+<td><img src="kmdf_osr_usb_fx2.asp_files/red.gif" border="0" height="5" width="20"></td>
+<td><img src="kmdf_osr_usb_fx2.asp_files/red.gif" border="0" height="5" width="20"></td>
+<td><img src="kmdf_osr_usb_fx2.asp_files/red.gif" border="0" height="5" width="20"></td>
+<td><img src="kmdf_osr_usb_fx2.asp_files/red.gif" border="0" height="5" width="20"></td>
+<td><img src="kmdf_osr_usb_fx2.asp_files/red.gif" border="0" height="5" width="15"><img src="kmdf_osr_usb_fx2.asp_files/white.gif" border="0" height="5" width="5"></td>
+</tr></tbody></table>
+</td></tr><tr><td colspan="2" class="smallText" align="right"><a href="http://www.codeproject.com/script/articles/top_articles.asp?st=2" title="Calculated as rating x Log10(# votes)">Popularity: 7.63</a>. Rating: <b>4.76</b> out of 5.</td></tr></tbody></table></td></tr>
+		</tbody></table>
+		
+			
+	</td>
+</tr>
+
+<tr>
+	<td class="ArticlePane">
+
+<span id="intelliTXT">
+<div id="contentdiv">
+
+
+<!-- Article Starts -->
+
+
+<ul class="download">
+<li><a href="http://www.codeproject.com/system/kmdf_osr_usb_fx2/kmdf_usb_driver.zip">Download article sources - 12.3 Kb</a> 
+</li><li><a href="http://www.codeproject.com/system/kmdf_osr_usb_fx2/Article_demo.zip">Download demo project - 165 Kb</a> </li></ul>
+<p><img alt="Sample Image - screenshot.gif" src="kmdf_osr_usb_fx2.asp_files/screenshot.gif" height="357" width="486"></p>
+<h2>Introduction</h2>
+<p>This article explains and demonstrates the steps involved in
+developing a kernel mode device driver using the WDF Kernel Mode Driver
+Foundation (KMDF).</p>
+<p>The specific USB device that is used in this article is the OSR USB-FX2 learning kit that is available at <a href="http://www.codeproject.com/system/www.osronline.com" target="_blank">OSR Online</a>. Of course, the things that are discussed are valid for other USB devices, but the sample code will only work for the FX2 kit.</p>
+<p>The following items are discussed or touched in this article:</p>
+<ul>
+<li>General USB driver issues. 
+</li><li>USB Interrupt handling. 
+</li><li>Read, write, and IO control operations. 
+</li><li>General power management issues. 
+</li><li>Device suspend and wakeup. </li></ul>
+<p>The basic things like how to compile a driver, how to deploy it
+using an INF file, and other basic things are not explained in this
+article. These things are all explained in my previous article: <a href="http://www.codeproject.com/system/wdf_kmdf_basic.asp" target="_blank">Building and deploying a basic WDF Kernel Mode Driver</a>.</p>
+<h2>Background</h2>
+<p>Once upon a time, I became interested in driver development. I have
+always been intrigued by making hardware do things via software. I
+started reading about driver development, bought Oney's book, and
+finally bought the OSR USB FX2 learning kit.</p>
+<p>As I already mentioned in my previous article, learning WDM is hard.
+You have to spend a gigantic amount of time on it. I decided to drop
+WDM after a while, and my FX2 kit disappeared into the closet.</p>
+<p>Then, in December 2005, the KMDF was released. I learned USB device
+driver programming with the KMDF, and decided to write an article about
+it. During the time I was writing this article, I had to explain so
+many things that I decided to first write an article about KMDF driver
+development basics.</p>
+<p>This second article describes the USB specific topics and driver functionality.</p>
+<h2>Prerequisites</h2>
+<p>The list of prerequisites for using the code is very short:</p>
+<ul>
+<li>The latest version of the WDF DDK. You can download it <a href="http://www.microsoft.com/whdc/driver/wdf/default.mspx" target="_blank">here</a>. 
+</li><li>Windows XP or higher for testing the driver. Version 1.1 of
+the KMDF will also support Windows 2000, but that has not yet been
+released at this time. </li><li>The OSR USB-FX2 learning kit if you want to actually run the code in this article. 
+</li><li>The DebugView utility for viewing KdPrint messages. This is available at <a href="http://www.codeproject.com/system/www.sysinternals.com" target="_blank">sysinternals</a>. </li></ul>
+<h2>New concepts used in this driver</h2>
+<p>Before I can show the implementation of the USB driver, there are
+some KMDF concepts that need a bit of explaining before the code makes
+sense.</p>
+<h3>WDF memory management</h3>
+<p>To facilitate safe memory handling, the WDF uses <code>WDFMEMORY</code> objects. These objects are opaque to the programmer. You can only use them through their handles.</p>
+<p>WDF memory objects contain both the buffer pointer and the size
+descriptor of a block of memory. This means that when you pass a memory
+object handle to another function, it always carries the means for
+using it safely with it.</p>
+<p>Likewise, if you get a memory handle from the framework, you can
+always verify that the data buffer is large enough for what you want to
+do with it.</p>
+<p>Like all other framework objects, <code>WDFMEMORY</code> objects
+have a parent and are reference counted. This means that you never need
+to explicitly delete the memory objects that you create, assuming that
+they are allowed to live as long as your device object.</p>
+<p>The fact that they are reference counted also allows you to hang on
+to a memory object after its normal lifetime. Suppose you want to use
+an input buffer of a write request after you already completed the
+write operation. To do this, you simply increment its reference count.
+This guarantees that you can safely continue to use it until you
+decrement its reference count, even though that object would have
+already been deleted when its normal lifetime ended.</p>
+<p>In order to combine safety with ease of use, the WDF DDK contains the <code>WdfMemoryCopyToBuffer</code> and <code>WdfMemoryCopyFromBuffer</code> functions that you can use for safely copying data to and from <code>WDFMEMORY</code> objects.</p>
+<p>There are different functions for creating WDF memory objects, but one that is particularly interesting is <code>WdfMemoryCreatePreallocated</code>. This function can be used for wrapping a <code>WDFMEMORY</code> object around an existing raw data buffer. This is a technique that I use later on.</p>
+<h3>USB basics</h3>
+<p>One of the reasons USB was developed was to have a modern
+replacement for legacy serial interfaces and a low-cost alternative to
+Firewire. If you look at the hardware and protocol specification,
+you'll notice that USB - even though it has some bells and whistles- is
+really nothing more than a glorified serial interface that supports
+multiple hot pluggable devices on the same bus.</p>
+<p>One of the most important principles behind USB is that there is one
+bus controller (the PC) and multiple possible slaves. All data transfer
+is initialized by the master. If the master doesn't request data, the
+slave cannot send it.</p>
+<p>This is even true for USB interrupts. A device cannot send an
+interrupt to the master. The master has to poll the interrupt status
+periodically. If an interrupt transfer succeeds, the USB host
+controller then interrupts the USB driver as if the transfer was a
+'real' interrupt.</p>
+<h3>Configurations, interfaces, and endpoints</h3>
+<p>The USB protocol allows for a very flexible use of devices. This
+also means that there are a lot of things you should know before you
+can do anything. On the other hand, the framework does most things for
+you so you don't have to know the low level details.</p>
+<p>The first thing you have to think of is the configuration. The USB
+configuration of a device can be thought of as a classification of
+physical functionality. Most devices out there have just one
+configuration, i.e., it has one physical representation. It is possible
+for devices to allow multiple configurations.</p>
+<p>I know of only one such device: a USB chip that can act as a USB to
+RS-232 converter and as an 8 bit digital IO device. Since those are two
+completely different types of device that cannot ever be used at the
+same time, it makes sense to let it have two different configurations.</p>
+<p>99% of the time, however, you'll just have one configuration per physical device.</p>
+<p>Once a device is given a configuration, it can export multiple
+interfaces. An interface can be thought of as an independent part of
+the device functionality. For example, you could have a data
+acquisition device that has both analog and digital IO capabilities. If
+those parts of the device could be operated independently, it would
+make sense to provide two interfaces: one for the digital IO, and one
+for the analog IO.</p>
+<p>Finally, each interface can have one or more endpoints. An endpoint
+is a target for actual data transfers. Each time you want to send data
+to the device, you have to specify which endpoint it should go to. Each
+endpoint has a specific data transfer type associated with it.</p>
+<h3>Types of data transfer</h3>
+<p>There are four types of data transfer in the USB protocol. Each has its own purpose:</p>
+<ul>
+<li>Interrupt: data is sent to the driver as a result of an event on
+the USB board. This transfer type is typically used for event
+notifications. </li><li>Isochronous: data is sent periodically with timing
+guarantees. This transfer type is mostly used for real-time streaming
+of data like sound. </li><li>Bulk: data is sent in potentially large quantities, but
+without real-time guarantees. This type of transfer is used by data
+acquisition devices, portable storage etc... </li><li>Control: data is sent to the board to control its behavior
+or change settings. A good example of control transfers is USB to
+serial converters. You would use control transfers to change baud rate
+settings and things like that, while ordinary read and write operations
+use bulk transfers. </li></ul>
+<p>Each endpoint is represented in the software by a so-called pipe.
+The principle behind a pipe is very simple: you push something in it at
+one end, and it comes out at the other end.</p>
+<h3>USB interrupts</h3>
+<p>USB interrupts are not real interrupts like PCI interrupts. They
+can't interrupt the system. Rather, if a USB interrupt is enabled for a
+device, the USB bus driver will poll the interrupt endpoint at a
+configurable periodic interval.</p>
+<p>If an interrupt packet is received, the framework will execute the
+callback function that was registered earlier. The interrupt data
+itself will be packaged in a <code>WDFMEMORY</code> object, and supplied as a parameter to the callback function.</p>
+<p>This process looks so deceptively simple that you are not
+sufficiently awed by it unless you know the WDM magic that is going on
+in the background. In order to receive a USB interrupt, a driver has to
+have an outstanding read request queued for the interrupt endpoint.</p>
+<p>As soon as the read request succeeds, the USB bus driver can
+complete the read request. Of course, a new interrupt event could
+happen on the USB board while the previous interrupt is still being
+handled.</p>
+<p>To prevent data loss in that case, the driver has to queue multiple
+read requests. That way, there will always be an outstanding request
+when the USB board generates an interrupt packet.</p>
+<p>Of course, this is not the only issue. While all this is going on,
+there are race conditions, possible PNP and power events, and IO
+cancellation problems. Lucky for us, the framework will take care of
+all this behind the scenes.</p>
+<h3>USB Control commands</h3>
+<p>Control commands are a special case in USB communication. All USB
+devices have to have a control endpoint at index 0, regardless of what
+type of device it is. This endpoint is used for device configuration
+and all things that need to happen during initialization phase, like
+loading firmware, for example.</p>
+<p>This means that endpoint 0 is always active, even before the device
+receives its configuration. A device also can't refuse to handle the
+control request immediately because the USB standard specifies them as
+high priority.</p>
+<p>As you will see, when the driver sends control commands to the USB
+device using KMDF functions, it does not have to supply a USB pipe.
+That is because the request will always go to the correct control
+endpoint. The only thing that is needed is the USB device handle.</p>
+<p>There are three different types of control request types:</p>
+<ul>
+<li>Standard: The request is defined by the USB protocol itself. 
+</li><li>Class: The request is defined by the specific device class. 
+</li><li>Vendor: The request is defined by the vendor. </li></ul>
+<p>It is not my intention to give you an overview of all the requests
+that are required or allowed by the USB standard. That would lead us
+too far astray. Especially since the KMDF handles all the required
+requests for us during the initialization and configuration phase.</p>
+<p>If you really want to know everything about these low level details, you can find the specifications online at <a href="http://www.codeproject.com/system/www.usb.org" target="_blank">the USB consortium</a>.</p>
+<h3>Device IO controls</h3>
+<p>A user mode application that uses a device driver will often want to
+send special commands to the driver to make it do special things, to
+configure it, or to get status information. Read and write operations
+are not suited for this.</p>
+<p>That is where device IO controls come into play. A device IO control
+is a special command that is sent to the device driver. The user mode
+interface for sending device IO controls looks like this:</p><pre>BOOL DeviceIoControl(
+  HANDLE hDevice,
+  DWORD dwIoControlCode,
+  LPVOID lpInBuffer,
+  DWORD nInBufferSize,
+  LPVOID lpOutBuffer,
+  DWORD nOutBufferSize,
+  LPDWORD lpBytesReturned,
+  LPOVERLAPPED lpOverlapped
+);</pre>
+<p>As you can see, a device IO control can (optionally) have input and
+output buffers. The most important parameter, however (from the
+driver's point of view), is <code>dwIoControlCode</code>. This numerical code will be used by the device driver to determine what it has to do.</p>
+<p>The value itself is of little interest in the user mode application,
+but it can be used to learn a few things about the command. The 32 bits
+in the <code>DWORD</code> are divided into different parts. Each part has a special meaning to the system:</p>
+<ul>
+<li>bit 31: Common. This bit is set for all drivers of non-predefined types. 
+</li><li>bit 30 - 16: Device type. This value specifies if the device
+is of a predefined type or not. If the device is not of a predefined
+type, the value should be greater or equal to 0x8000. </li><li>bit 15 - 14: Required access. This value indicates the
+access level that the caller must have requested when opening the
+device handle. For example, if this field specifies read access, the IO
+control will only be sent to the driver if the caller opened the device
+with read access. </li><li>bit 13: Custom. This bit is set for function codes greater than 0x800. 
+</li><li>bit 12 - 2: Function code. This value specifies the action the
+driver has to perform. If the function is vendor defined, this number
+should be greater than 0x800. </li><li>bit 1 - 0: Transfer type. This value indicates if the function uses buffered IO or direct IO for data transfer. </li></ul>
+<p>From this, we can conclude that not only are the opcodes simply used
+by the driver to determine what it has to do, but they also allow the
+driver programmer to configure access control and IO configuration.</p>
+<p>Windows uses the control code to determine how it should move data
+to the driver, and to perform security checks. This makes it possible
+to restrict device usage to specific groups of users.</p>
+<h2>Implementing the code for configuring the device driver</h2>
+<p>The following chapters explain the different configuration and initialization phases of a USB device driver.</p>
+<h3>The driver entry point</h3>
+<p>If you have looked at the <code>DriverEntry</code> code of the WDF basic driver in my previous article, you'll notice that it looks exactly the same as the <code>DriverEntry</code> of this device driver. That is because like in many drivers, there is no global data to initialize or to clean up.</p>
+<p>The only purpose of the <code>DriverEntry</code> function is to register the callback function for adding new devices.</p><div class="smallText" id="premain1" style="width: 100%;"><img preid="1" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg1" height="9" width="9"><span preid="1" style="margin-bottom: 0pt;" id="precollapse1"> Collapse</span></div><pre style="margin-top: 0pt; display: block;" id="pre1">NTSTATUS DriverEntry(
+    IN PDRIVER_OBJECT  DriverObject, 
+    IN PUNICODE_STRING  RegistryPath
+    )
+{
+  WDF_DRIVER_CONFIG config;
+  NTSTATUS status;
+
+  WDF_DRIVER_CONFIG_INIT(&amp;config, EvtDeviceAdd);
+
+  status = WdfDriverCreate(
+                      DriverObject,
+                      RegistryPath,
+                      WDF_NO_OBJECT_ATTRIBUTES,
+                      &amp;config,
+                      WDF_NO_HANDLE);
+
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfDriverCreate failed with status 0x%08x\n"</span>, status));
+  }
+
+  <span class="cpp-keyword">return</span> status;
+}</pre>
+<h3>Adding new devices</h3>
+<p>The <code>EvtDeviceAdd</code> function is executed by the framework
+for each new device that is attached to the system and registered to be
+handled by our driver.</p>
+<p>Before the driver does anything else, it overrides some of the
+default PNP and power management functions of the KMDF framework. To be
+precise, the driver will implement its own version of the <code>EvtDevicePrepareHardware</code>, <code>EvtDeviceD0Entry</code>, and <code>EvtDeviceD0Exit</code> functions.</p>
+<p>The driver configures its data IO to be buffered. The KMDF makes the
+difference between buffered and direct IO pretty transparent.</p>
+<p>With buffered IO, there is an extra memory copy action between user
+space and kernel space, but the driver knows it can trust the buffer it
+gets. With direct IO, there is no extra memory but the driver needs to
+perform some checks to make sure it can use the supplied pointer for
+reading and writing.</p>
+<p>The final initialization step is to create a device object using <code>WdfDeviceCreate</code>. The new device now has a representation in the KMDF framework.</p>
+<p>Since the FX2 is a USB device, it is not unreasonable to assume that
+the user will disconnect it from the computer without using the 'safely
+remove hardware' option. To prevent any annoying system messages, the
+driver sets the <code>Removable</code> and <code>SurpriseRemovalOK</code> PNP properties to <code>WdfTrue</code>. That way, the OS knows that the driver is capable of handling this situation without any problems.</p>
+<p>For reasons that I explain later on, the driver needs to store the
+state of the LED array on the FX2. In order to make this easier, a WDF
+memory object is wrapped around the <code>D0LEDArrayState</code> variable. This allows subroutines to supply a WDF memory handle to certain IO functions without having to create and delete <code>WDFMEMORY</code> objects.</p>
+<p>Then the different device IO queues are created (see next chapter),
+and finally, the device interface is registered. User applications can
+find the device by enumerating all devices that export this interface.</p><div class="smallText" id="premain2" style="width: 100%;"><img preid="2" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg2" height="9" width="9"><span preid="2" style="margin-bottom: 0pt;" id="precollapse2"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre2">NTSTATUS EvtDeviceAdd(
+    IN WDFDRIVER  Driver,
+    IN PWDFDEVICE_INIT  DeviceInit
+    )
+{
+  NTSTATUS status;
+  WDFDEVICE device;
+  PDEVICE_CONTEXT devCtx = NULL;
+  WDF_OBJECT_ATTRIBUTES attributes;
+  WDF_PNPPOWER_EVENT_CALLBACKS pnpPowerCallbacks;
+  WDF_DEVICE_PNP_CAPABILITIES pnpCapabilities;
+
+  UNREFERENCED_PARAMETER(Driver);
+
+  <span class="cpp-comment">/*set the callback functions that will 
+    be executed on PNP and Power events*/</span>
+  WDF_PNPPOWER_EVENT_CALLBACKS_INIT(&amp;pnpPowerCallbacks);
+  pnpPowerCallbacks.EvtDevicePrepareHardware = 
+                     EvtDevicePrepareHardware;
+  pnpPowerCallbacks.EvtDeviceD0Entry = EvtDeviceD0Entry;
+  pnpPowerCallbacks.EvtDeviceD0Exit = EvtDeviceD0Exit;
+  WdfDeviceInitSetPnpPowerEventCallbacks(DeviceInit, 
+                                &amp;pnpPowerCallbacks);
+
+  WdfDeviceInitSetIoType(DeviceInit, WdfDeviceIoBuffered);
+
+  <span class="cpp-comment">/*initialize storage for the device context*/</span>
+  WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&amp;attributes, 
+                                      DEVICE_CONTEXT);
+
+  <span class="cpp-comment">/*create a device instance.*/</span>
+  status = WdfDeviceCreate(&amp;DeviceInit, &amp;attributes, &amp;device);  
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfDeviceCreate failed with status 0x%08x\n"</span>, status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  <span class="cpp-comment">/*set the PNP capabilities of our device.
+    we don't want an annoying
+    popup if the device is pulled out of the USB slot.*/</span>
+  WDF_DEVICE_PNP_CAPABILITIES_INIT(&amp;pnpCapabilities);
+  pnpCapabilities.Removable = WdfTrue;
+  pnpCapabilities.SurpriseRemovalOK = WdfTrue;
+  WdfDeviceSetPnpCapabilities(device, &amp;pnpCapabilities);
+  
+  devCtx = GetDeviceContext(device);
+
+  <span class="cpp-comment">/*create a WDF memory object 
+    for the memory that is occupied by the
+    WdfMemLEDArrayState variable in the device context.
+    this way we have the value itself handy for debugging purposes, and
+    we have a WDF memory handle that can be used for passing to the low
+    level USB functions.
+    this alleviates the need to getting the buffer at run time.*/</span>
+  status = WdfMemoryCreatePreallocated(WDF_NO_OBJECT_ATTRIBUTES,
+                           &amp;devCtx-&gt;D0LEDArrayState,
+                           <span class="cpp-keyword">sizeof</span>(devCtx-&gt;D0LEDArrayState),
+                           &amp;devCtx-&gt;WdfMemLEDArrayState);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfMemoryCreatePreallocated"</span> 
+      <span class="cpp-string">" failed with status 0x%08x\n"</span>, status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  status = CreateQueues(device, devCtx);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+    <span class="cpp-keyword">return</span> status;
+
+  status = WdfDeviceCreateDeviceInterface(device, 
+           &amp;GUID_DEVINTERFACE_FX2, NULL);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfDeviceCreateDeviceInterface failed"</span> 
+      <span class="cpp-string">" with status 0x%08x\n"</span>, status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  <span class="cpp-keyword">return</span> status;
+}</pre>
+<h4>Creating the IO queues</h4>
+<p>The code for creating the different IO queues has been put into a separate function to improve readability.</p>
+<p>There are five queues used by the driver:</p>
+<ul>
+<li>A parallel device IO control request queue. This will be the
+default entry for all IO control operations that are sent to the
+driver. </li><li>A serialized device IO control request queue. This is where
+the driver itself will queue IO control operations that have to be
+serialized. </li><li>A serialized write request queue. This is where the system is asked to send all write IO requests to. 
+</li><li>A serialized read request queue. This is where the system is asked to send all read IO requests to. 
+</li><li>A manual request queue. This is the queue where the driver will temporarily store <code>IOCTL_WDF_USB_GET_SWITCHSTATE_CHANGE</code> IO control requests until they can be completed. </li></ul>
+<p>There is no default IO handler in the driver. The result of this is
+that all requests that are not IO control, read, or write requests will
+automatically fail.</p>
+<p>By default, the default queue will receive all IO requests unless
+dispatching for a specific request type is routed to a different queue.
+Rerouting the requests is done with the function <code>WdfDeviceConfigureRequestDispatching</code>.</p>
+<p>It is not necessary to call <code>WdfDeviceConfigureRequestDispatching</code>
+for a manual queue because the driver will explicitly retrieve requests
+from the queue when the time is right. You will also notice that no
+request routing is specified for the serialized IO control request
+queue. That is because it is the driver itself that decides which
+requests are pushed into that queue.</p><div class="smallText" id="premain3" style="width: 100%;"><img preid="3" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg3" height="9" width="9"><span preid="3" style="margin-bottom: 0pt;" id="precollapse3"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre3">NTSTATUS CreateQueues(WDFDEVICE Device, PDEVICE_CONTEXT Context)
+{
+  NTSTATUS status = STATUS_SUCCESS;
+
+  WDF_IO_QUEUE_CONFIG ioQConfig;
+
+  <span class="cpp-comment">/*create the default IO queue. this one 
+    will be used for ioctl request entry.
+    this queue is parallel, so as to prevent 
+    unnecessary serialization for
+    IO requests that can be handled in parallel.*/</span>
+  WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(&amp;ioQConfig,
+                           WdfIoQueueDispatchParallel);
+  ioQConfig.EvtIoDeviceControl = EvtDeviceIoControlEntry;
+  status = WdfIoQueueCreate(Device,
+                            &amp;ioQConfig,
+                            WDF_NO_OBJECT_ATTRIBUTES,
+                            &amp;Context-&gt;IoControlEntryQueue);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfIoQueueCreate failed with status 0x%08x\n"</span>, status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  <span class="cpp-comment">/*create the IO queue for serialize IO requests. This queue will be filled by
+    the IO control entry handler with the requests that have to be serialized
+    for execution.*/</span>
+  WDF_IO_QUEUE_CONFIG_INIT(&amp;ioQConfig,
+                           WdfIoQueueDispatchSequential);
+  ioQConfig.EvtIoDeviceControl = EvtDeviceIoControlSerial;
+  status = WdfIoQueueCreate(Device,
+                            &amp;ioQConfig,
+                            WDF_NO_OBJECT_ATTRIBUTES,
+                            &amp;Context-&gt;IoControlSerialQueue);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfIoQueueCreate failed with status 0x%08x\n"</span>, status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  <span class="cpp-comment">/*create the IO queue for write requests*/</span>
+  WDF_IO_QUEUE_CONFIG_INIT(&amp;ioQConfig,
+                           WdfIoQueueDispatchSequential);
+  ioQConfig.EvtIoWrite = EvtDeviceIoWrite;
+  status = WdfIoQueueCreate(Device,
+                            &amp;ioQConfig,
+                            WDF_NO_OBJECT_ATTRIBUTES,
+                            &amp;Context-&gt;IoWriteQueue);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfIoQueueCreate failed with status 0x%08x\n"</span>, status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  status  = WdfDeviceConfigureRequestDispatching(Device,
+                                                Context-&gt;IoWriteQueue,
+                                                WdfRequestTypeWrite);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfDeviceConfigureRequestDispatching failed with status 0x%08x\n"</span>,
+      status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  <span class="cpp-comment">/*create the IO queue for read requests*/</span>
+  WDF_IO_QUEUE_CONFIG_INIT(&amp;ioQConfig,
+                           WdfIoQueueDispatchSequential);
+  ioQConfig.EvtIoRead = EvtDeviceIoRead;
+  status = WdfIoQueueCreate(Device,
+                            &amp;ioQConfig,
+                            WDF_NO_OBJECT_ATTRIBUTES,
+                            &amp;Context-&gt;IoReadQueue);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfIoQueueCreate failed with status 0x%08x\n"</span>, status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  status  = WdfDeviceConfigureRequestDispatching(Device,
+                                                Context-&gt;IoReadQueue,
+                                                WdfRequestTypeRead);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfDeviceConfigureRequestDispatching failed with status 0x%08x\n"</span>,
+      status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  <span class="cpp-comment">/*create a manual queue for storing the IOCTL_WDF_USB_GET_SWITCHSTATE_CHANGE
+      IO control requests. If a file handle associated with one or more requests
+    in the queue is closed, the requests themselves are automatically removed
+    from the queue by the framework and cancelled.*/</span>
+  WDF_IO_QUEUE_CONFIG_INIT(&amp;ioQConfig,
+                           WdfIoQueueDispatchManual);
+  status = WdfIoQueueCreate(Device,
+                            &amp;ioQConfig,
+                            WDF_NO_OBJECT_ATTRIBUTES,
+                            &amp;Context-&gt;SwitchChangeRequestQueue);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfIoQueueCreate for manual queue failed with status 0x%08x\n"</span>, status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  <span class="cpp-keyword">return</span> status;
+}</pre>
+<h3>Preparing the hardware for operation</h3>
+<p>Because this function has to do quite a lot of things, it is broken up into several sub routines.</p>
+<p>Before anything else, the driver has to initialize its connection to
+the USB device. If that succeeds, the different USB pipes have to be
+configured. After that, the power management for our driver can be set
+up.</p>
+<p>In order to receive USB interrupts, the driver has to configure a
+continuous read operation. The framework will maintain a queue of
+always outstanding read requests for our driver, and execute the
+callback function <code>EvtUsbDeviceInterrupt</code> for each read request that gets completed.</p>
+<p>The default number of outstanding read requests is 2. You can raise
+this number to maximum 10 requests, to prevent data loss if the device
+generates a high number of interrupts. For our driver, the default is
+OK.</p>
+<p>It is worth mentioning that this same principle can be used for bulk
+request input endpoints. This could be useful, for example, for data
+acquisition devices that continuously have to stream data to the
+computer.</p><div class="smallText" id="premain4" style="width: 100%;"><img preid="4" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg4" height="9" width="9"><span preid="4" style="margin-bottom: 0pt;" id="precollapse4"> Collapse</span></div><pre style="margin-top: 0pt; display: block;" id="pre4">NTSTATUS EvtDevicePrepareHardware(
+    IN WDFDEVICE    Device,
+    IN WDFCMRESLIST ResourceList,
+    IN WDFCMRESLIST ResourceListTranslated
+    )
+{
+  NTSTATUS status;
+  PDEVICE_CONTEXT devCtx = NULL; 
+  WDF_USB_CONTINUOUS_READER_CONFIG interruptConfig;
+
+  UNREFERENCED_PARAMETER(ResourceList);
+  UNREFERENCED_PARAMETER(ResourceListTranslated);
+
+  devCtx = GetDeviceContext(Device);
+
+  status = ConfigureUsbInterface(Device, devCtx);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+    <span class="cpp-keyword">return</span> status;
+
+  status = ConfigureUsbPipes(devCtx);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+    <span class="cpp-keyword">return</span> status;
+
+  status = InitPowerManagement(Device, devCtx);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+    <span class="cpp-keyword">return</span> status;
+
+  <span class="cpp-comment">/*set up the interrupt endpoint with a continuous read operation. that
+    way we are guaranteed that no interrupt data is lost.*/</span>
+  WDF_USB_CONTINUOUS_READER_CONFIG_INIT(&amp;interruptConfig,
+                                        EvtUsbDeviceInterrupt,
+                                        devCtx,
+                                        <span class="cpp-keyword">sizeof</span>(BYTE));
+  status = WdfUsbTargetPipeConfigContinuousReader(
+                                        devCtx-&gt;UsbInterruptPipe,
+                                        &amp;interruptConfig);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfUsbTargetPipeConfigContinuousReader "</span> 
+      <span class="cpp-string">"failed with status 0x%08x\n"</span>, status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  <span class="cpp-keyword">return</span> status;
+}</pre>
+<h4>Configuring the USB device</h4>
+<p>Before anything can be done with the USB device, the driver has to connect to the USB driver using the function <code>WdfUsbTargetDeviceCreate</code>. When this function is executed, a USB device object is created for our device and a connection to the bus driver is opened.</p>
+<p>As I mentioned before, a configuration and an interface have to be
+selected. The FX2 has only one possible configuration which has only
+one interface. That means, the driver can use the <code>WDF_USB_DEVICE_SELECT_CONFIG_PARAMS_INIT_SINGLE_INTERFACE</code> function to initialize the USB interface config structure.</p>
+<p>The selection is then made active by executing <code>WdfUsbTargetDeviceSelectConfig</code>. No special attributes are necessary. The configured USB interface handle is saved in the device context.</p><div class="smallText" id="premain5" style="width: 100%;"><img preid="5" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg5" height="9" width="9"><span preid="5" style="margin-bottom: 0pt;" id="precollapse5"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre5">NTSTATUS ConfigureUsbInterface(WDFDEVICE Device, PDEVICE_CONTEXT DeviceContext)
+{
+  NTSTATUS status = STATUS_SUCCESS;
+  WDF_USB_DEVICE_SELECT_CONFIG_PARAMS usbConfig;
+
+  status = WdfUsbTargetDeviceCreate(Device,
+                                    WDF_NO_OBJECT_ATTRIBUTES,
+                                    &amp;DeviceContext-&gt;UsbDevice);
+
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfUsbTargetDeviceCreate failed with status 0x%08x\n"</span>, status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  <span class="cpp-comment">/*initialize the parameters struct so that the device can initialize
+    and use a single specified interface.
+    this only works if the device has just 1 interface.*/</span>
+  WDF_USB_DEVICE_SELECT_CONFIG_PARAMS_INIT_SINGLE_INTERFACE(&amp;usbConfig);
+
+  status = WdfUsbTargetDeviceSelectConfig(DeviceContext-&gt;UsbDevice,
+                                          WDF_NO_OBJECT_ATTRIBUTES,
+                                          &amp;usbConfig);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfUsbTargetDeviceSelectConfig failed with status 0x%08x\n"</span>, status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  <span class="cpp-comment">/*put the USB interface in our device context so that we can use it in
+    future calls to our driver.*/</span>
+  DeviceContext-&gt;UsbInterface =
+    usbConfig.Types.SingleInterface.ConfiguredUsbInterface;
+
+  <span class="cpp-keyword">return</span> status;
+}</pre>
+<h4>Configuring the USB pipes</h4>
+<p>Now that the USB configuration and interface are selected, the data pipes can be configured.</p>
+<p>The FX2 has three endpoints (not counting the control endpoint that
+the driver does not use directly): one interrupt endpoint, and two bulk
+data endpoints. The framework will handle the low level configuration
+of those endpoints. The driver itself only needs to iterate through the
+list of endpoints and determine what to do with them.</p>
+<p>At the end, the driver checks if all three expected endpoints have
+been found. An error is generated if one or more expected endpoints are
+not found.</p>
+<p>One thing to mention is the fact that, by default, the framework
+expects the driver to only perform USB transfers that are exact
+multiples of the USB transfer packet size. Since this is highly
+unlikely (or impossible for the interrupt endpoint), the driver
+disables that check.</p><div class="smallText" id="premain6" style="width: 100%;"><img preid="6" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg6" height="9" width="9"><span preid="6" style="margin-bottom: 0pt;" id="precollapse6"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre6">NTSTATUS ConfigureUsbPipes(PDEVICE_CONTEXT DeviceContext)
+{
+  NTSTATUS status = STATUS_SUCCESS;
+  BYTE index = <span class="cpp-literal">0</span>;
+  WDF_USB_PIPE_INFORMATION pipeConfig;
+  WDFUSBPIPE pipe = NULL;
+
+  DeviceContext-&gt;UsbInterruptPipe = NULL;
+  DeviceContext-&gt;UsbBulkInPipe = NULL;
+  DeviceContext-&gt;UsbBulkOutPipe = NULL;
+  WDF_USB_PIPE_INFORMATION_INIT(&amp;pipeConfig);
+  <span class="cpp-keyword">do</span>
+  {
+    pipe = WdfUsbInterfaceGetConfiguredPipe(DeviceContext-&gt;UsbInterface,
+                                          index,
+                                          &amp;pipeConfig);
+    <span class="cpp-keyword">if</span>(NULL == pipe)
+      <span class="cpp-keyword">break</span>;
+
+    <span class="cpp-comment">/*none of our data transfers will have a guarantee that the requested
+      data size is a multiple of the packet size.*/</span>
+    WdfUsbTargetPipeSetNoMaximumPacketSizeCheck(pipe);
+
+    <span class="cpp-keyword">if</span>(WdfUsbPipeTypeInterrupt == pipeConfig.PipeType)
+    { 
+      DeviceContext-&gt;UsbInterruptPipe = pipe;
+    }
+    <span class="cpp-keyword">else</span> <span class="cpp-keyword">if</span>(WdfUsbPipeTypeBulk == pipeConfig.PipeType)
+    {
+      <span class="cpp-keyword">if</span>(TRUE == WdfUsbTargetPipeIsInEndpoint(pipe))
+      {
+        DeviceContext-&gt;UsbBulkInPipe = pipe;
+      }
+      <span class="cpp-keyword">else</span> <span class="cpp-keyword">if</span>(TRUE == WdfUsbTargetPipeIsOutEndpoint(pipe))
+      {
+        DeviceContext-&gt;UsbBulkOutPipe = pipe;
+      }
+    }
+    index++;
+  } <span class="cpp-keyword">while</span>(NULL != pipe);
+
+  <span class="cpp-keyword">if</span>((NULL == DeviceContext-&gt;UsbInterruptPipe) ||
+      (NULL == DeviceContext-&gt;UsbBulkInPipe) ||
+      (NULL == DeviceContext-&gt;UsbBulkOutPipe))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"Not all expected USB pipes were found.\n"</span>));
+    <span class="cpp-keyword">return</span> STATUS_INVALID_PARAMETER;
+  }
+  
+  <span class="cpp-keyword">return</span> status;
+}</pre>
+<h4>Configuring power management</h4>
+<p>How the driver initializes the power management depends on the
+capabilities of the device itself. For the FX2, we could assume that
+the capabilities are fixed, but the clean solution is to dynamically
+retrieve this information. This is done with the <code>WdfUsbTargetDeviceRetrieveInformation</code> function.</p>
+<p>The data that is returned by this function is a <code>WDF_USB_DEVICE_INFORMATION</code> structure. This structure has three interesting parameters:</p>
+<ul>
+<li><code>UsbdVersionInformation</code>: This parameter holds the USB version that the device supports and a USB interface version number. 
+</li><li><code>HcdPortCapabilities</code>: A set of bit flags that identify HCD-supported port capabilities. Currently, there is only one flag: <code>USB_HCD_CAPS_SUPPORTS_RT_THREADS</code>. This flag indicates if the host controller supports real-time threads. 
+</li><li><code>Traits</code>: A bit mask that specifies the capabilities of the USB device. </li></ul>
+<p>Only the <code>Traits</code> parameter is of interest. In that bit
+mask, the driver can find if the device enables waking the system from
+a sleeping state, if the device is self-powered, and if the device is
+high-speed.</p>
+<p>The only bit that has an effect on the driver is the <code>WDF_USB_DEVICE_TRAIT_REMOTE_WAKE_CAPABLE</code> flag. This flag indicates if the USB device supports wakeup from system sleep. For the FX2, this is the case.</p>
+<p>There are two distinct properties to be configured: the S0 Idle settings, and the Sx Wake settings.</p>
+<p><code>WdfDeviceAssignS0IdleSettings</code> can be used to configure
+the idle time after which the device is brought to a low power state if
+the system is in the S0 state. Doing this prevents needless power
+consumption.</p>
+<p>The S0 Idle settings structure is initialized with the <code>WDF_DEVICE_POWER_POLICY_IDLE_SETTINGS_INIT</code> function. For USB devices, the capabilities flag <code>IdleUsbSelectiveSuspend</code>
+has to be used for enabling device sleep in the S0 system state. The
+default device power state the USB device will be powered down to is <code>PowerDeviceD2</code>.</p>
+<p>The <code>WdfDeviceAssignSxWakeSettings</code> function specifies the device's ability to wake the system when both are in a low power state. It uses a <code>WDF_DEVICE_POWER_POLICY_WAKE_SETTINGS</code> structure that contains the following parameters:</p>
+<ul>
+<li><code>DxState</code>: The lowest power state in which the device
+will be armed for wakeup. By default, this is the lowest D state in
+which the device is still capable of triggering system wakeup. For the
+FX2, this is <code>PowerStateD2</code>. This also means that the Sx to Dx mapping determines the deepest Sx state from which the device can trigger system wakeup. 
+<p>For example: if S2 is the deepest sleep state that still has a
+device power state equal to D2, then S2 is the deepest sleep state in
+which the device can trigger the system.</p>
+</li><li><code>UserControlOfWakeSettings</code>: This setting can be used to allow or disallow the user to enable or disable the wakeup feature. 
+</li><li><code>Enabled</code>: Enables or disables the wakeup feature. </li></ul><div class="smallText" id="premain7" style="width: 100%;"><img preid="7" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg7" height="9" width="9"><span preid="7" style="margin-bottom: 0pt;" id="precollapse7"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre7">NTSTATUS
+InitPowerManagement(
+    IN WDFDEVICE  Device,
+    IN PDEVICE_CONTEXT Context)
+{
+  NTSTATUS status = STATUS_SUCCESS;
+  WDF_USB_DEVICE_INFORMATION usbInfo;
+
+  KdPrint((__DRIVER_NAME <span class="cpp-string">"Device init power management\n"</span>));
+
+  WDF_USB_DEVICE_INFORMATION_INIT(&amp;usbInfo);
+  status = WdfUsbTargetDeviceRetrieveInformation(
+                                Context-&gt;UsbDevice,
+                                &amp;usbInfo);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfUsbTargetDeviceRetrieveInformation failed with status 0x%08x\n"</span>,
+      status));
+    <span class="cpp-keyword">return</span> status;
+  }
+  
+  KdPrint((__DRIVER_NAME  <span class="cpp-string">"Device self powered: %d"</span>,
+    usbInfo.Traits &amp; WDF_USB_DEVICE_TRAIT_SELF_POWERED ? <span class="cpp-literal">1</span> : <span class="cpp-literal">0</span>));
+  KdPrint((__DRIVER_NAME  <span class="cpp-string">"Device remote wake capable: %d"</span>,
+    usbInfo.Traits &amp; WDF_USB_DEVICE_TRAIT_REMOTE_WAKE_CAPABLE ? <span class="cpp-literal">1</span> : <span class="cpp-literal">0</span>));
+  KdPrint((__DRIVER_NAME  <span class="cpp-string">"Device high speed: %d"</span>,
+    usbInfo.Traits &amp; WDF_USB_DEVICE_TRAIT_AT_HIGH_SPEED ? <span class="cpp-literal">1</span> : <span class="cpp-literal">0</span>));
+
+  <span class="cpp-keyword">if</span>(usbInfo.Traits &amp; WDF_USB_DEVICE_TRAIT_REMOTE_WAKE_CAPABLE)
+  {
+    WDF_DEVICE_POWER_POLICY_IDLE_SETTINGS idleSettings;
+    WDF_DEVICE_POWER_POLICY_WAKE_SETTINGS wakeSettings;
+
+    WDF_DEVICE_POWER_POLICY_IDLE_SETTINGS_INIT(&amp;idleSettings,
+                                               IdleUsbSelectiveSuspend);
+    idleSettings.IdleTimeout = <span class="cpp-literal">10000</span>;
+    status = WdfDeviceAssignS0IdleSettings(Device, &amp;idleSettings);
+    <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+    {
+      KdPrint((__DRIVER_NAME
+        <span class="cpp-string">"WdfDeviceAssignS0IdleSettings failed with status 0x%08x\n"</span>,
+        status));
+      <span class="cpp-keyword">return</span> status;
+    }
+    
+    WDF_DEVICE_POWER_POLICY_WAKE_SETTINGS_INIT(&amp;wakeSettings);
+    wakeSettings.DxState = PowerDeviceD2;
+    status = WdfDeviceAssignSxWakeSettings(Device, &amp;wakeSettings);
+    <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+    {
+      KdPrint((__DRIVER_NAME
+        <span class="cpp-string">"WdfDeviceAssignSxWakeSettings failed with status 0x%08x\n"</span>,
+        status));
+      <span class="cpp-keyword">return</span> status;
+    }
+  }
+
+  <span class="cpp-keyword">return</span> status;
+}</pre>
+<h2>Implementing the code for power management</h2>
+<p>The driver will start receiving power management as soon as the
+device object is configured. For the FX2, there are only two events of
+interest: <code>EvtDeviceD0Entry</code> and <code>EvtDeviceD0Exit</code>. There are other power events that can be handled, but these are not important for our driver.</p>
+<p>Something that is not obvious from the code is the state of the IO
+queues when the device is powered on or off. That is because that is
+all being taken care of by the framework.</p>
+<p>If the IO queues are power managed (which they are, in our case),
+then the framework will not let the device leave the D0 state as long
+as there are requests in the queue. Once the device is in a lower power
+state, the framework will stall all new requests instead of putting
+them in the queue.</p>
+<p>If the device is in a low power state simply because it is idle, the
+framework will restore the device power state to D0 before delivering
+the request to the driver.</p>
+<p>The power management functions are always called at IRQL=PASSIVE.
+However, that does not automatically mean that you can place them in
+pageable sections, or that you are allowed to access pageable data.</p>
+<p>The reason for this is that the paging device may not be fully
+functional during the power state transition. As such, any attempt to
+access paged data can end in a bug-check.</p>
+<p>Luckily, this behavior can be configured. The driver can call <code>WdfDeviceInitSetPowerPageable</code>
+to indicate that it wants to access pageable data during the power
+transition. In that case, the system will make sure that the power
+management functions of the driver are only executed if the page device
+is running.</p>
+<p>The default is to allow paging, so unless you specify otherwise by calling <code>WdfDeviceInitSetPowerNotPageable</code>, you are free to put the power management functions in a pageable code section.</p>
+<h3>Device power up</h3>
+<p>Now that the hardware has been configured and the power management
+features have been set up, the device can enter its normal working
+state: <code>PowerDeviceD0</code>.</p>
+<p>The USB device that was created previously has to be started to be able to perform USB communications. The <code>WdfIoTargetStart</code> function performs this action.</p>
+<p>To get the IO target that is associated with the USB device, the framework provides the <code>WdfUsbTargetPipeGetIoTarget</code>
+function that retrieves the IO target that is associated with a
+specific USB pipe. Any of the configured USB pipes will do because they
+all use the same IO target.</p>
+<p>The <code>EvtDeviceD0Entry</code> function is called each time the
+device enters the D0 state, regardless of the previous power state. An
+additional check is implemented in this function. If the previous state
+was <code>PowerDeviceD3</code> (the power off state), the driver restores the state of the LED array.</p><div class="smallText" id="premain8" style="width: 100%;"><img preid="8" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg8" height="9" width="9"><span preid="8" style="margin-bottom: 0pt;" id="precollapse8"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre8">NTSTATUS
+EvtDeviceD0Entry(
+    IN WDFDEVICE  Device,
+    IN WDF_POWER_DEVICE_STATE  PreviousState
+    )
+{
+  NTSTATUS status = STATUS_SUCCESS;
+  PDEVICE_CONTEXT devCtx = NULL;
+
+  KdPrint((__DRIVER_NAME <span class="cpp-string">"Device D0 Entry. Coming from %s\n"</span>,
+    PowerName(PreviousState)));
+
+  devCtx = GetDeviceContext(Device);
+  status = 
+    WdfIoTargetStart(WdfUsbTargetPipeGetIoTarget(
+    devCtx-&gt;UsbInterruptPipe));
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfIoTargetStart failed with status 0x%08x\n"</span>, status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  <span class="cpp-comment">/*restore the state of the LED array 
+    if the device is waking up from a
+    D3 power state.*/</span>
+  <span class="cpp-keyword">if</span>(PreviousState == PowerDeviceD3)
+  {
+    status = llSetLightBar(devCtx, 
+             devCtx-&gt;WdfMemLEDArrayState);
+  }
+
+  <span class="cpp-keyword">return</span> status;
+}</pre>
+<h3>Powering down the device</h3>
+<p>The power-down sequence is the reverse of the power-up sequence. If the target state is <code>PowerDeviceD3</code>, the state of the LED array is saved in the device context so that it can be restored again later.</p>
+<p>When that is done, the USB device object that was created for our
+driver needs to be stopped so that it too can commence its power-down
+sequence. Any incomplete IO requests are left pending. That removes the
+need for restarting the continuous read operation that provides the
+driver with USB interrupts.</p>
+<p>As soon as the IO target is restarted, the driver can receive interrupts again.</p><div class="smallText" id="premain9" style="width: 100%;"><img preid="9" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg9" height="9" width="9"><span preid="9" style="margin-bottom: 0pt;" id="precollapse9"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre9">NTSTATUS
+EvtDeviceD0Exit(
+    IN WDFDEVICE  Device,
+    IN WDF_POWER_DEVICE_STATE  TargetState
+    )
+{
+  NTSTATUS status = STATUS_SUCCESS;
+  PDEVICE_CONTEXT devCtx = NULL;
+
+  devCtx = GetDeviceContext(Device);
+
+  KdPrint((__DRIVER_NAME <span class="cpp-string">"Device D0 Exit. Going to %s\n"</span>,
+    PowerName(TargetState)));
+
+  <span class="cpp-comment">/*save the state of the LED array if the device is waking up from a
+    D3 power state.*/</span>
+  <span class="cpp-keyword">if</span>(TargetState == PowerDeviceD3)
+  {
+    status = llGetLightBar(devCtx, devCtx-&gt;WdfMemLEDArrayState);
+    <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+      <span class="cpp-keyword">return</span> status;
+  }
+
+  WdfIoTargetStop(WdfUsbTargetPipeGetIoTarget(devCtx-&gt;UsbInterruptPipe),
+                  WdfIoTargetLeaveSentIoPending);
+
+  <span class="cpp-keyword">return</span> status;
+}</pre>
+<h2>Implementing IO</h2>
+<p>There has been a lot of activity already, just to get to the point
+where the driver is ready to receive IO requests and USB interrupts. As
+soon as the device power state is <code>PowerDeviceD0</code>, the IO queues will accept IO requests and execute the correct callback function.</p>
+<h3>Handling device IO control commands</h3>
+<p>Most actions that a USB device driver performs are received as
+device IO control requests. The reason for this is simple. A device
+typically has lots of features, and read and write operations can only
+be used for one thing: reading and writing.</p>
+<p>All the other features have to be accessible somehow. That is what the IO control handler is for.</p>
+<p>The function of a device IO control handler is simply to determine
+the correct function to execute, and to forward the request to that
+function. You can see this in the code below. Any IO control that is
+not eventually handled by our driver is completed with an error.</p>
+<p>In order to provide a flexible and efficient handling mechanism, the
+IO control handling is split into two stages. The first stage is the <code>EvtDeviceIoControlEntry</code>
+function that will initially handle all requests that are sent to the
+driver. As you could see earlier, the IO control entry queue was
+created as a parallel queue, meaning that multiple requests can be
+served concurrently.</p>
+<p>If the request does not have to be synchronized with other requests,
+it can be handled immediately. On the other hand, if it needs to be
+synchronized, it will be forwarded to the serialized IO control queue
+which will handle only one request at a time.</p>
+<p>The beauty of this mechanism is that it allows for a quick execution
+of all non-synchronized requests while also providing synchronization
+for requests that have to be serialized.</p><div class="smallText" id="premain10" style="width: 100%;"><img preid="10" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg10" height="9" width="9"><span preid="10" style="margin-bottom: 0pt;" id="precollapse10"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre10">VOID
+EvtDeviceIoControlEntry(
+    IN WDFQUEUE  Queue,
+    IN WDFREQUEST  Request,
+    IN size_t  OutputBufferLength,
+    IN size_t  InputBufferLength,
+    IN ULONG  IoControlCode
+    )
+{
+  <span class="cpp-keyword">switch</span>(IoControlCode)
+  {
+  <span class="cpp-keyword">case</span> IOCTL_WDF_USB_GET_SWITCHSTATE:
+    IoCtlGetSwitchPack(Queue, Request, 
+           OutputBufferLength, InputBufferLength);
+    <span class="cpp-keyword">break</span>;
+  <span class="cpp-keyword">case</span> IOCTL_WDF_USB_GET_SWITCHSTATE_CHANGE:
+    IoCtlGetSwitchPackChange(Queue, Request, 
+           OutputBufferLength, InputBufferLength);
+    <span class="cpp-keyword">break</span>;
+  <span class="cpp-keyword">default</span>:
+    {
+      PDEVICE_CONTEXT devCtx = 
+              GetDeviceContext(WdfIoQueueGetDevice(Queue));
+      WdfRequestForwardToIoQueue(Request, 
+              devCtx-&gt;IoControlSerialQueue);
+    }
+    <span class="cpp-keyword">break</span>;
+  }
+}</pre>
+<p>The second stage of the IO handler is the serial IO control handler.
+It will handle any request that was not yet handled by the parallel
+handler. It will also fail any request it does not know.</p>
+<p>As the functionality of the driver evolves over time, you can simply
+add IO control handling in the stage where it is most appropriate. So
+even if your driver has only IO controls that need to be serialized, it
+is still a good idea to use this mechanism because it allows you to
+cleanly add functionality if / when the requirements change.</p><div class="smallText" id="premain11" style="width: 100%;"><img preid="11" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg11" height="9" width="9"><span preid="11" style="margin-bottom: 0pt;" id="precollapse11"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre11">VOID
+EvtDeviceIoControlSerial(
+    IN WDFQUEUE  Queue,
+    IN WDFREQUEST  Request,
+    IN size_t  OutputBufferLength,
+    IN size_t  InputBufferLength,
+    IN ULONG  IoControlCode
+    )
+{
+  <span class="cpp-keyword">switch</span>(IoControlCode)
+  {
+  <span class="cpp-keyword">case</span> IOCTL_WDF_USB_SET_LIGHTBAR:
+    IoCtlSetLightBar(Queue, Request, 
+            OutputBufferLength, InputBufferLength);
+    <span class="cpp-keyword">break</span>;
+  <span class="cpp-keyword">case</span> IOCTL_WDF_USB_GET_LIGHTBAR:
+    IoCtlGetLightBar(Queue, Request, 
+            OutputBufferLength, InputBufferLength);
+    <span class="cpp-keyword">break</span>;
+  <span class="cpp-keyword">default</span>:
+    WdfRequestComplete(Request, 
+              STATUS_INVALID_PARAMETER);
+    <span class="cpp-keyword">break</span>;
+  }
+}</pre>
+<h4>Getting the actual switch pack state</h4>
+<p>This is one of the requests that can be handled in parallel. It only
+atomically reads a value from the device context, so no serialization
+is needed.</p>
+<p>The value of the switch pack is sent to the PC each time one of its
+switches changes its position. It is also sent when the device is
+powered up to its D0 state. The switch pack value is stored in the
+device context.</p>
+<p>To get this value, the user application has to send an IO control
+request to the driver. This is the simplest IO control function in the
+driver. First, it checks to see if the output buffer is large enough to
+contain the switch pack state.</p>
+<p>Then the output buffer pointer is retrieved so that the data can be
+copied into it. When that is done, the IO request can be completed. The
+number of copied bytes is supplied as completion information so that
+the correct number of bytes read is reported correctly to the
+application that sent the request.</p><div class="smallText" id="premain12" style="width: 100%;"><img preid="12" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg12" height="9" width="9"><span preid="12" style="margin-bottom: 0pt;" id="precollapse12"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre12">VOID
+IoCtlGetSwitchPack(
+    IN WDFQUEUE  Queue,
+    IN WDFREQUEST  Request,
+    IN size_t  OutputBufferLength,
+    IN size_t  InputBufferLength)
+{
+  NTSTATUS status = STATUS_SUCCESS;
+  BYTE *outChar = NULL;
+  size_t length = <span class="cpp-literal">0</span>;
+  PDEVICE_CONTEXT devCtx = NULL;
+
+  UNREFERENCED_PARAMETER(InputBufferLength);
+
+  <span class="cpp-keyword">if</span>(OutputBufferLength &lt; <span class="cpp-keyword">sizeof</span>(BYTE))
+  {
+    KdPrint((__DRIVER_NAME
+        <span class="cpp-string">"IOCTL_WDF_USB_GET_SWITCHSTATE"</span> 
+        <span class="cpp-string">" OutputBufferLength &lt; sizeof(BYTE)\n"</span>));
+    WdfRequestComplete(Request, 
+              STATUS_INVALID_PARAMETER);
+    <span class="cpp-keyword">return</span>;
+  }
+
+  status = WdfRequestRetrieveOutputBuffer(Request,
+                                          <span class="cpp-keyword">sizeof</span>(BYTE),
+                                          &amp;outChar,
+                                          &amp;length);
+
+  <span class="cpp-keyword">if</span>(NT_SUCCESS(status))
+  {
+    ASSERT(length &gt;= <span class="cpp-keyword">sizeof</span>(BYTE));
+    devCtx = GetDeviceContext(WdfIoQueueGetDevice(Queue));
+    *outChar = devCtx-&gt;ActSwitchPack;
+  }
+
+  WdfRequestCompleteWithInformation(Request, 
+                      status, <span class="cpp-keyword">sizeof</span>(BYTE));
+}</pre>
+<h4>Requesting a switch pack change notification</h4>
+<p>This is the second IO control that needs no synchronization. That is because the handler doesn't actually do anything.</p>
+<p>Suppose an application needs to be constantly made aware of the
+latest value of the switch pack. One option would be to periodically
+send an <code>IOCTL_WDF_USB_GET_SWITCHSTATE</code> IO control to the driver to get the latest value, but there are several reasons why this is a bad idea.</p>
+<p>It causes needless processing overhead. There is a lot of activity,
+while most of the time the results are the same as before. It also
+causes a lot of context switching that can harm performance.</p>
+<p>There is a much better solution available: an <code>IOCTL_WDF_USB_GET_SWITCHSTATE_CHANGE</code> IO control.</p>
+<p>The application sends such an IO control to the driver. Instead of
+completing this request, the driver puts it in the manual request queue
+and then forgets about it. Note that as soon as it is forwarded, the
+driver loses the request ownership, so it is not supposed to do
+anything with it after that. The request could be cancelled or
+completed, and trying to use the request handle would lead to a bug
+check.</p>
+<p>If the request is synchronous, the calling thread is blocked until
+the request completes. If the request is sent asynchronous, the calling
+thread is not blocked but has to regularly check if the request has
+completed. This can be done in several ways but that is beyond the
+scope of this article.</p>
+<p>Completing the request is done in the USB interrupt handler. Per
+interrupt packet, there is one IO request completed. The end result is
+that the user application has to perform only one IO operation per
+actual switch pack change, instead of wasting hundreds of IO operations
+by polling the switch pack state.</p><div class="smallText" id="premain13" style="width: 100%;"><img preid="13" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg13" height="9" width="9"><span preid="13" style="margin-bottom: 0pt;" id="precollapse13"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre13">VOID
+IoCtlGetSwitchPackChange(
+    IN WDFQUEUE  Queue,
+    IN WDFREQUEST  Request,
+    IN size_t  OutputBufferLength,
+    IN size_t  InputBufferLength)
+{
+  NTSTATUS status = STATUS_SUCCESS;
+  PDEVICE_CONTEXT devCtx = NULL;
+
+  UNREFERENCED_PARAMETER(InputBufferLength);
+  UNREFERENCED_PARAMETER(OutputBufferLength);
+  UNREFERENCED_PARAMETER(Queue);
+
+  devCtx = GetDeviceContext(WdfIoQueueGetDevice(Queue));
+
+  <span class="cpp-comment">/*If the request is succesfull the
+    request ownership is also transferred
+    back to the framework.*/</span>
+  status = WdfRequestForwardToIoQueue(Request,
+           devCtx-&gt;SwitchChangeRequestQueue);
+  <span class="cpp-comment">/*if the request cannot be forwarded
+    it has to be completed with
+    the appropriate status code because 
+    the driver still owns the request.*/</span>
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+        <span class="cpp-string">"WdfRequestForwardToIoQueue failed "</span> 
+        <span class="cpp-string">"with code 0x%08x.\n"</span>, status));
+    WdfRequestComplete(Request, status);
+  }
+}</pre>
+<p>By now, you might be asking yourself the question, "This is all fine
+and dandy, but what happens with the IO request when the calling
+application closes its device handle?" I asked myself the same question.</p>
+<p>The correct answer is, "Nothing that the driver has to care about." Really. It is that simple!</p>
+<p>Truth be told, I was already experimenting with the <code>EvtFileCleanup</code>
+function to manually retrieve requests out of the manual queue and
+cancel them, when I found out that the framework does this for me, for
+free.</p>
+<p>If there is an outstanding IO request in the queue when the
+associated file handle is closed, the IO request is cancelled and
+removed from the queue. The USB interrupt handler will never know.</p>
+<p>The same is true if the device is removed from the system by pulling
+out the USB connector. All outstanding requests will be cancelled
+automatically.</p>
+<h4>Getting the state of the LED array</h4>
+<p>The IO control request for reading the state of the LED array is forwarded to the <code>IoCtlGetLightBar</code>
+function. I have omitted the description of this function because its
+control flow is exactly the same as for the previous IO control
+operation.</p>
+<p><code>IoCtlGetLightBar</code> first checks if the output buffer is
+large enough. After that, it executes the actual command. When that has
+finished, the request is completed with the status code of the executed
+command and the number of bytes that was read.</p>
+<p>The only interesting thing here is the implementation of the <code>llGetLightBar</code> function that executes the low level command.</p>
+<p>Before it does anything, it extracts the buffer pointer from the
+supplied WDF memory object. This is not needed for the actual USB
+operation, but the driver needs it afterwards to reformat the data
+packet.</p>
+<p>A memory descriptor is then created for the WDF memory handle itself
+because the function for sending the request requires a memory
+descriptor instead of a <code>WDFMEMORY</code> handle.</p>
+<p>The actual communication to get the LED state is implemented on the
+FX2 as a vendor control message. All USB control requests require a <code>WDF_USB_CONTROL_SETUP_PACKET</code> structure to hold the request information.</p>
+<p>The driver initializes the control packet with the control request direction (<code>BmRequestDeviceToHost</code>), the command recipient (<code>BmRequestToDevice</code>), and the numerical value of the specific control command.</p>
+<p>The control request is sent to the USB device in a synchronous
+fashion. I.e., the function will only return when the request has
+finished, or if there was an error. Note that the driver does not need
+to specify a USB pipe to use because the driver knows which endpoint to
+send the request to.</p>
+<p>As with the switch pack state, the LED array state needs to be
+converted from its physical representation to a logical representation.
+The algorithm involved is different from the algorithm for the switch
+pack because the encoding is different.</p><div class="smallText" id="premain14" style="width: 100%;"><img preid="14" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg14" height="9" width="9"><span preid="14" style="margin-bottom: 0pt;" id="precollapse14"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre14">NTSTATUS
+llGetLightBar(
+    IN PDEVICE_CONTEXT Context,
+    IN WDFMEMORY State
+    )
+{
+  NTSTATUS status = STATUS_SUCCESS;
+  WDF_USB_CONTROL_SETUP_PACKET controlPacket;
+  WDF_MEMORY_DESCRIPTOR memDescriptor;
+  BYTE logicalVal = <span class="cpp-literal">0</span>;
+  BYTE *inChar = NULL;
+  size_t length = <span class="cpp-literal">0</span>;
+
+  KdPrint((__DRIVER_NAME <span class="cpp-string">"entering llGetLightBar\n"</span>));
+
+  inChar = WdfMemoryGetBuffer(State, &amp;length);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"Could not retrieve the lightbar memory pointer\n"</span>));
+    <span class="cpp-keyword">return</span> status;
+  }
+  
+  ASSERT(length &gt;= <span class="cpp-keyword">sizeof</span>(BYTE));
+  ASSERT(NULL != inChar);
+
+  <span class="cpp-comment">/*initialize the descriptor that will be passed to the USB driver*/</span>
+  WDF_MEMORY_DESCRIPTOR_INIT_HANDLE(&amp;memDescriptor, State, NULL);
+
+  WDF_USB_CONTROL_SETUP_PACKET_INIT_VENDOR(
+                            &amp;controlPacket,
+                            BmRequestDeviceToHost,
+                            BmRequestToDevice,
+                            VC_GET_LIGHT_BAR,
+                            <span class="cpp-literal">0</span>,
+                            <span class="cpp-literal">0</span>);
+
+  status = WdfUsbTargetDeviceSendControlTransferSynchronously(
+                            Context-&gt;UsbDevice,
+                            NULL,
+                            NULL,
+                            &amp;controlPacket,
+                            &amp;memDescriptor,
+                            NULL);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfUsbTargetDeviceSendControlTransferSynchronouslyfailed with status 0x%08x\n"</span>,
+      status));
+    <span class="cpp-keyword">return</span> status;
+  }
+
+  <span class="cpp-comment">/*translate the supplied physical value to a value that represents the
+    values of the LEDs in the logical light array.*/</span>
+  logicalVal = ((*inChar &amp; <span class="cpp-literal">0x1F</span>) &lt;&lt; <span class="cpp-literal">3</span>) | ((*inChar &amp; <span class="cpp-literal">0xE0</span>) &gt;&gt; <span class="cpp-literal">5</span>);
+  KdPrint((__DRIVER_NAME <span class="cpp-string">"Original value = 0x%x, new value = 0x%x\n"</span>,
+    *inChar, logicalVal));
+  *inChar = logicalVal;
+  
+  <span class="cpp-keyword">return</span> status;
+}</pre>
+<h4>Setting the state of the LEDs in the LED array</h4>
+<p>The code for setting the LED state is nearly identical to the code for getting it, so I am not going to repeat that here.</p>
+<p>The only significant difference is that a different numerical control code is used (<code>VC_GET_LIGHT_BAR</code> instead of <code>VC_SET_LIGHT_BAR</code>), and that the LED array state is now converted from a logical value to a physical value before the request is sent.</p>
+<h3>Handling USB interrupts</h3>
+<p>The USB interrupt handler is the function that was registered to be
+called for every read request that succeeds for the continuous read on
+the interrupt endpoint.</p>
+<p>This function is the only function in our driver that is ever called
+at IRQL=DISPATCH. This means that it should not block for any length of
+time, and it should only use functions that are safe at that IRQL. Last
+but not least, it should not access any pageable data. This also means
+that this function is the only function in our driver that is not
+placed in a pageable code section.</p>
+<p>As you can see, <code>EvtUsbDeviceInterrupt</code> only takes the interrupt data and copies it into the value for the actual switch pack state.</p>
+<p>The only additional thing that happens here is that the different
+bits in the switch pack are shuffled to a different position. The
+reason for this is that the incoming value is the switch pack as it was
+stored in hardware, rather than the logical ordering of the switches.</p>
+<p>It is common for values like this to be ordered in a non-intuitive
+way because it is much easier and cheaper to do this in software than
+in hardware. The ordering could simply be caused by the fact that
+traces on the PCB have a wiring limitation.</p>
+<p>When the data is converted, the driver checks if there is an
+outstanding IO request in the manual request queue. If there is such a
+request, it is completed. Only one request is completed per interrupt.
+Requests are put into the manual queue in the handler for the <code>IOCTL_WDF_USB_GET_SWITCHSTATE_CHANGE</code> IO control.</p>
+<p>Since there is almost no delay between retrieving the IO control
+from the queue and completing it, nothing more needs to be done. If
+there was some lengthy processing to be done in between those two
+actions, the driver should enable cancellation of the request.</p>
+<p>If you enable request cancellation, you have to supply a callback
+function that is called by the framework so that the driver can stop
+the request in a controlled manner. The driver then has to disable
+request cancellation before actually completing the request, to make
+sure that it is still allowed to touch it.</p>
+<p>But in the case of this driver, that is not necessary because there
+is no delay between receiving the request ownership and the request
+completion.</p><div class="smallText" id="premain15" style="width: 100%;"><img preid="15" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg15" height="9" width="9"><span preid="15" style="margin-bottom: 0pt;" id="precollapse15"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre15">VOID
+EvtUsbDeviceInterrupt(
+    WDFUSBPIPE  Pipe,
+    WDFMEMORY  Buffer,
+    size_t  NumBytesTransferred,
+    WDFCONTEXT  Context
+    )
+{
+  NTSTATUS status;
+  BYTE temp;
+  size_t size;
+  PDEVICE_CONTEXT devCtx = Context;
+  WDFREQUEST Request = NULL;
+  BYTE *packState = WdfMemoryGetBuffer(Buffer, &amp;size);
+
+  UNREFERENCED_PARAMETER(Pipe);
+
+  ASSERT(size == <span class="cpp-keyword">sizeof</span>(BYTE));
+  ASSERT(NumBytesTransferred == size);
+  ASSERT(packState != NULL);
+  
+  temp = *packState;
+  
+  temp = (temp &amp; <span class="cpp-literal">0x01</span>) &lt;&lt; <span class="cpp-literal">7</span> | 
+         (temp &amp; <span class="cpp-literal">0x02</span>) &lt;&lt; <span class="cpp-literal">5</span> | 
+         (temp &amp; <span class="cpp-literal">0x04</span>) &lt;&lt; <span class="cpp-literal">3</span> | 
+         (temp &amp; <span class="cpp-literal">0x08</span>) &lt;&lt; <span class="cpp-literal">1</span> | 
+         (temp &amp; <span class="cpp-literal">0x10</span>) &gt;&gt; <span class="cpp-literal">1</span> | 
+         (temp &amp; <span class="cpp-literal">0x20</span>) &gt;&gt; <span class="cpp-literal">3</span> | 
+         (temp &amp; <span class="cpp-literal">0x40</span>) &gt;&gt; <span class="cpp-literal">5</span> | 
+         (temp &amp; <span class="cpp-literal">0x80</span>) &gt;&gt; <span class="cpp-literal">7</span>;
+
+  KdPrint((__DRIVER_NAME <span class="cpp-string">"Converted switch pack from 0x%02x to 0x%02x\n"</span>,
+    (ULONG)*packState, (ULONG)temp));
+
+  devCtx-&gt;ActSwitchPack = ~temp;
+
+  <span class="cpp-comment">/*is there an io control queued? if so then complete the first one*/</span>
+  status = WdfIoQueueRetrieveNextRequest(devCtx-&gt;SwitchChangeRequestQueue,
+                                         &amp;Request);
+  <span class="cpp-keyword">if</span>(NT_SUCCESS(status))
+  {
+    BYTE* outBuffer;
+    status = WdfRequestRetrieveOutputBuffer(Request,
+                                            <span class="cpp-keyword">sizeof</span>(BYTE),
+                                            &amp;outBuffer,
+                                            NULL);
+
+    <span class="cpp-keyword">if</span>(NT_SUCCESS(status))
+    {
+      <span class="cpp-comment">/*do not use the value in the device context,
+        since that may already have
+        changed because of a second interrupt
+        while this one was handled.*/</span>
+      *outBuffer = temp;
+      WdfRequestCompleteWithInformation(Request, 
+                          status, <span class="cpp-keyword">sizeof</span>(BYTE));
+    }
+    <span class="cpp-keyword">else</span>
+      WdfRequestComplete(Request, status);
+    
+    KdPrint((__DRIVER_NAME <span class="cpp-string">"Completed async pending IOCTL.\n"</span>));
+  }
+}</pre>
+<h3>Handling device read / write functionality</h3>
+<p>The last thing the driver is still missing is the read / write
+functionality. For the FX2, these are symmetrical. Everything that is
+written to the 'In' endpoint is looped back to the 'Out' endpoint.
+These endpoints are double buffered, so a new data packet can be sent
+while the previous packet is still being passed through.</p>
+<p>If the data isn't read back, the write request will stall until the
+buffers are cleared again. At the application level, this means that
+there always has to be an outstanding read request that matches the
+write request in length.</p>
+<p>Lucky for us, the driver doesn't have to care about this. This is
+the responsibility of the user application that uses this device driver.</p>
+<h4>Handling the write request</h4>
+<p>The driver cannot perform the actual write operation by itself.
+Rather, it has to ask the USB bus driver to perform a write request.
+For that reason, the driver reformats the incoming request to a write
+request for the USB IO target.</p>
+<p>In order to be able to complete the request once it finishes, the <code>EvtIoWriteComplete</code>
+function is associated with the write request as a completion routine.
+It will be executed when the low level USB write request finishes.</p>
+<p>If any of these intermediate actions fail, the request is failed
+immediately with the correct status code. Else, this function returns
+without changing the request. It is then up to the completion routine
+to do the rest.</p><div class="smallText" id="premain16" style="width: 100%;"><img preid="16" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg16" height="9" width="9"><span preid="16" style="margin-bottom: 0pt;" id="precollapse16"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre16">VOID
+EvtDeviceIoWrite(
+    IN WDFQUEUE  Queue,
+    IN WDFREQUEST  Request,
+    IN size_t  Length
+    )
+{
+  NTSTATUS status = STATUS_SUCCESS;
+  PDEVICE_CONTEXT devCtx = NULL;
+  WDFMEMORY requestMem;
+
+  devCtx = GetDeviceContext(WdfIoQueueGetDevice(Queue));
+  
+  KdPrint((__DRIVER_NAME <span class="cpp-string">"Received a write request of %d bytes\n"</span>, Length));
+
+  status = WdfRequestRetrieveInputMemory(Request, &amp;requestMem);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfRequestRetrieveInputMemory failed with status 0x%08x\n"</span>, status));
+    WdfRequestComplete(Request, status);
+    <span class="cpp-keyword">return</span>;
+  }
+
+  status = WdfUsbTargetPipeFormatRequestForWrite(
+                                      devCtx-&gt;UsbBulkOutPipe,
+                                      Request,
+                                      requestMem,
+                                      NULL);
+  <span class="cpp-keyword">if</span>(!NT_SUCCESS(status))
+  {
+    KdPrint((__DRIVER_NAME
+      <span class="cpp-string">"WdfUsbTargetPipeFormatRequestForWrite "</span> 
+      <span class="cpp-string">"failed with status 0x%08x\n"</span>, status));
+    WdfRequestComplete(Request, status);
+    <span class="cpp-keyword">return</span>;
+  }
+  WdfRequestSetCompletionRoutine(Request,
+                                 EvtIoWriteComplete,
+                                 devCtx-&gt;UsbBulkOutPipe);
+  <span class="cpp-keyword">if</span>(FALSE == WdfRequestSend(Request,
+                            WdfUsbTargetPipeGetIoTarget(devCtx-&gt;UsbBulkOutPipe),
+                            NULL))
+  {
+    KdPrint((__DRIVER_NAME <span class="cpp-string">"WdfRequestSend failed with status 0x%08x\n"</span>, status));
+    status = WdfRequestGetStatus(Request);
+    WdfRequestComplete(Request, status);
+  }
+  <span class="cpp-keyword">else</span>
+    <span class="cpp-keyword">return</span>;
+}</pre>
+<h4>Completing the write request</h4>
+<p>The completion function for the write request is pretty simple. It
+gets the status and transfer length from the USB request completion
+parameters, and completes the request with that information.</p><div class="smallText" id="premain17" style="width: 100%;"><img preid="17" src="kmdf_osr_usb_fx2.asp_files/minus.gif" id="preimg17" height="9" width="9"><span preid="17" style="margin-bottom: 0pt;" id="precollapse17"> Collapse</span></div><pre style="margin-top: 0pt;" id="pre17">VOID
+EvtIoWriteComplete(
+    IN WDFREQUEST  Request,
+    IN WDFIOTARGET  Target,
+    IN PWDF_REQUEST_COMPLETION_PARAMS  Params,
+    IN WDFCONTEXT  Context)
+{
+  PWDF_USB_REQUEST_COMPLETION_PARAMS usbCompletionParams;
+
+  UNREFERENCED_PARAMETER(Context);
+  UNREFERENCED_PARAMETER(Target);
+
+  usbCompletionParams = Params-&gt;Parameters.Usb.Completion;
+
+  <span class="cpp-keyword">if</span>(NT_SUCCESS(Params-&gt;IoStatus.Status))
+  {
+    KdPrint((__DRIVER_NAME <span class="cpp-string">"Completed the write request with %d bytes\n"</span>,
+          usbCompletionParams-&gt;Parameters.PipeWrite.Length));
+  }
+  <span class="cpp-keyword">else</span>
+  {
+    KdPrint((__DRIVER_NAME <span class="cpp-string">"Failed the read request with status 0x%08x\n"</span>,
+          Params-&gt;IoStatus.Status));
+  }
+  WdfRequestCompleteWithInformation(Request,
+                                    Params-&gt;IoStatus.Status,
+                                    usbCompletionParams-&gt;Parameters.PipeWrite.Length);
+}</pre>
+<h4>Handling the read request</h4>
+<p>Read requests are virtually identical to write requests from this
+driver's point of view. The only difference is that another bulk pipe
+is used, and different completion parameters are read.</p>
+<h2>Testing the driver</h2>
+<p>You can download the device driver from the top of this page. For
+more detailed information on how to build and install the driver, you
+can read my previous <a href="http://www.codeproject.com/system/wdf_kmdf_basic.asp" target="_blank">article</a>.</p>
+<p>Also available for download is a demo application. The test application can enumerate all devices that export the <code>GUID_DEVINTERFACE_FX2</code> device interface.</p>
+<p>As soon as a handle to the device is opened, a secondary thread will
+initialize the switches on the user interface with the actual switch
+pack state, and then wait for switch change notifications.</p>
+<p>The following features are also available to the user via push buttons:</p>
+<ul>
+<li>Loop-back of a file through the device to another file on disk.
+During the data transfer, the LED array is used as a binary number that
+is incremented with each 10 USB packets that are received by the FX2. </li><li>Getting the LED array state. Each LED is represented by one bit that is visualized as a checkbox. 
+</li><li>Setting the LED array state. The state of the checkboxes on the dialog will be set on the corresponding LEDs on the FX2. </li></ul>
+<p>All device errors will be popped up on a message box. It is no
+problem if you pull out the cable during operation. The current
+operations will fail gracefully, and the device handle will be closed.</p>
+<p>If you test the application, you might notice that if you move the
+switches very fast, it is possible that the switches on the screen do
+not match the actual state on the FX2. This is simply because my
+application uses only one IO control for switch change notification.</p>
+<p>If you want to receive all the notifications, your application has
+to make a queue of outstanding IO controls that gets filled up each
+time a previous one completes.</p>
+<h2>Conclusion</h2>
+<p>Phew, ...</p>
+<p>I know this is a very long article. Thank you for reading it. I hope
+you enjoyed reading it as much as I enjoyed writing it and figuring it
+all out.</p>
+<p>The reason this article is so long is that it is complete, or at
+least as complete as is possible without turning it into an
+encyclopedia or copying the entire DDK help collection.</p>
+<p>This article describes all the issues that are involved with writing
+a full fledged USB device driver that uses control requests, USB
+interrupts, and bulk transfers.</p>
+<p>With this article, you should be able to understand the concepts
+involved in USB device driver development. If you want to develop your
+own USB driver, then this article gives you a good place to start.</p>
+<p>There is one thing to mention: the current design does not allow
+multiple applications to receive switch change notifications, since
+only one request is completed per interrupt. To add this functionality,
+I would have had to add and explain additional topics like file object
+handling and synchronization functions.</p>
+<p>That would have made this article even longer, and the purpose of
+this article was to explain the USB mechanics. KMDF file object
+handling and other topics will have to wait for a follow up article.</p>
+<p>To be honest, it took me far less time to develop the driver, the
+DLL, and the test application than it took to write this article. One
+of the most time consuming activities was to do all the research to
+make sure that this article is factually correct.</p>
+<p>Please let me know if you should find any errors, ambiguities,
+mistakes, or other problems in this article so that I can keep it
+correct and up to date.</p>
+<h2>History</h2>
+<p>The following versions of this article have been released:</p>
+<ul>
+<li>1.0: Initial version of this article. Special thanks to Doron Holan and Vishal Manan for their feedback and suggestions. </li></ul>
+
+<!-- Article Ends -->
+
+
+
+</div>
+</span>
+
+<script type="text/javascript" src="kmdf_osr_usb_fx2.asp_files/togglePre.js"></script>
+
+<h2>About Bruno van Dooren</h2>
+<div style="overflow: hidden;"><table border="0"><tbody><tr valign="top"><td class="smallText" nowrap="nowrap"><br></td><td class="smallText">I am a professional software developer with an interest in everything that is about making hardware work.<br><br>In the course of my work, I have programmed device drivers and services on Windows and linux.<br><br>I
+have written firmware for embedded devices in C and assembly language,
+and have designed and implemented real-time applications for testing of
+sattelite payload equipment.<br><br>Generally, finding out how to interface hardware with software is my hobby and job.<p class="smallText">Click <a href="http://www.codeproject.com/script/profile/whos_who.asp?vt=arts&amp;id=2578587">here</a> to view Bruno van Dooren's online profile.</p></td></tr></tbody></table></div><br>
+<table border="0" cellpadding="4" width="100%"><tbody><tr valign="top">
+<td width="100%"><h2>Other popular System articles:</h2><ul><li><a href="http://www.codeproject.com/system/xyntservice.asp">Start Your Windows Programs From An NT Service</a><div class="smallText">Make your MFC, VB and other Windows programs behave like NT services.</div></li><li><a href="http://www.codeproject.com/system/serial.asp">Serial library for C++</a><div class="smallText">A high-performance, complete and compact serial library for C++</div></li><li><a href="http://www.codeproject.com/system/hooksys.asp">API hooking revealed</a><div class="smallText">The article demonstrates how to build a user mode Win32 API spying system</div></li><li><a href="http://www.codeproject.com/system/driverdev.asp">Driver Development Part 1: Introduction to Drivers</a><div class="smallText">This article will go into the basics of creating a simple driver.</div></li></ul></td>
+<td width="360">
+<script language="javascript">document.write("<IFRAME src=\"/script/ann/ServeHTML.aspx?C=False&id=2257&cb=1078701\" border=0 frameborder=0 scrolling=no width=300 height=250></IFRAME>");</script><iframe src="kmdf_osr_usb_fx2.asp_files/ServeHTML.htm" border="0" frameborder="0" height="250" scrolling="no" width="300"></iframe>
+</td>
+</tr></tbody></table>
+
+		<form action="/script/rating/code/app/insert_vote.asp" method="post">
+		<input name="vote_name" value="kmdf_osr_usb_fx2/system3/30/2006" type="hidden">
+		<input name="goal" value="/system/kmdf_osr_usb_fx2.asp" type="hidden">
+
+<table bgcolor="#ff9900" border="0" cellpadding="1" cellspacing="0" width="100%">
+<tbody><tr><td width="100%">
+<table bgcolor="#fbedbb" border="0" cellpadding="4" cellspacing="0" width="100%"><tbody><tr>
+<td class="smalltext" valign="middle">[<a href="#__top">Top</a>]</td>
+<td align="right" nowrap="nowrap" valign="middle">
+<a href="http://www.codeproject.com/script/profile/logon.asp?ct=%2Fsystem%2Fkmdf%5Fosr%5Fusb%5Ffx2%2Easp"><b>Sign in</b></a> to vote for this article:&nbsp;&nbsp;&nbsp;&nbsp; <i>Poor</i><input value="1" style="" name="rate" type="radio"><input value="2" style="" name="rate" type="radio"><input value="3" style="" name="rate" type="radio"><input value="4" style="" name="rate" type="radio"><input value="5" style="" name="rate" type="radio"><i>Excellent</i>&nbsp;&nbsp;<input value="Vote" class="FormButton" style="" type="submit">
+</td></tr>
+</tbody></table></td></tr></tbody></table>
+</form>
+<center>
+<table border="0" cellpadding="0" cellspacing="0"><tbody><tr>
+<td style="padding: 2px; background-color: rgb(238, 238, 238);" height="60" width="120"><div align="center">
+<script language="javascript">document.write("<a href=\"/script/admentor/admentorredir.asp?id=2821&way=ban\" target=_blank><img src=\"/script/ann/ServeImg.aspx?File=%2Fscript%2Fadmentor%2Fimages%2Fvista%5Fapi%5Fcp%5Fcompetition%5F120x60v4%2Egif&C=False&id=2821&cb=1078708\" alt=\"\" border=0 width=120 height=60></a>");</script><a href="http://www.codeproject.com/script/admentor/admentorredir.asp?id=2821&amp;way=ban" target="_blank"><img src="kmdf_osr_usb_fx2.asp_files/ServeImg_002.htm" alt="" border="0" height="60" width="120"></a>
+</div></td>
+<td width="100">&nbsp;</td>
+<td height="60" width="468"><span id="AdBanner5"><script language="javascript">document.write("<a href=\"/script/admentor/admentorredir.asp?id=3216&way=ban\" target=_blank><img src=\"/script/ann/ServeImg.aspx?File=%2Fscript%2Fadmentor%2Fimages%2Fvista%5Fmobile%5Fcp%5Fcompetition%5F468x60%2Egif&C=False&id=3216&cb=1078681\" alt=\"\" border=0 width=468 height=60></a>");</script><a href="http://www.codeproject.com/script/admentor/admentorredir.asp?id=3216&amp;way=ban" target="_blank"><img src="kmdf_osr_usb_fx2.asp_files/ServeImg.htm" alt="" border="0" height="60" width="468"></a></span></td>
+</tr></tbody></table></center>
+
+<a name="__comments"></a>
+<div id="_MessageBoard" onclick="SwitchMessage(event)"><table bgcolor="#ff9900" border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td width="100%"><table id="ForumTable" bgcolor="#ff9900" border="0" cellpadding="0" cellspacing="1" width="100%"><tbody><tr><td class="smallText" bgcolor="#ffcc99"><b class="forum_hilite">Note</b>: You must <a href="http://www.codeproject.com/script/profile/logon.asp?ct=%2Fsystem%2Fkmdf%5Fosr%5Fusb%5Ffx2%2Easp"><b>Sign in</b></a> to post to this message board.<br><b>Hint:</b> For a faster board use IE 4+ or Mozilla, choose 'Message View' from the View dropdown and hit 'Set Options'.</td></tr><form action="/script/comments/app/do_filtermessages.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1646005&amp;main=/system/kmdf_osr_usb_fx2.asp" method="post"></form><tr><td><table bgcolor="white" border="0" cellpadding="3" cellspacing="0" width="100%"><tbody><tr bgcolor="#fbedbb"><td class="smalltext" nowrap="nowrap"><a href="http://www.codeproject.com/script/comments/faq.asp"><img src="kmdf_osr_usb_fx2.asp_files/forum_faq.GIF" align="absmiddle" border="0" height="16" width="16"> <b>FAQ</b></a>&nbsp;</td><td class="smalltext" align="right" nowrap="nowrap" valign="top">Message score threshold <select size="1" name="noise" class="smalltext"><option value="1">1.0 </option>
+<option value="2">2.0</option>
+<option selected="selected" value="3">3.0</option>
+<option value="4">4.0</option>
+<option value="5">5.0</option>
+</select>&nbsp;&nbsp;</td><td class="smalltext" colspan="2" align="right" nowrap="nowrap" valign="middle"><a href="http://www.codeproject.com/script/comments/search_comments.asp?forumid=286428"><img src="kmdf_osr_usb_fx2.asp_files/forum_search.gif" border="0" height="15" width="16"> Search comments</a> &nbsp;</td><td align="right" valign="top"><input value="Set Options" name="submit" class="FormButton" type="submit"></td></tr><tr bgcolor="#ff9900"><td width="100%">&nbsp;</td><td class="smalltext" align="right" nowrap="nowrap" valign="top">View <select size="1" name="expand" class="smalltext"><option selected="selected" value="0">Normal (slow)</option>
+<option value="2">Preview (slow)</option>
+<option value="5">Message View</option>
+<option value="6">Topic View</option>
+<option value="1">Thread View</option>
+<option value="3">Expanded (Supporters only)</option>
+</select>&nbsp;&nbsp;</td><td class="smalltext" nowrap="nowrap" valign="top">Per page <select size="1" name="perpage" class="smalltext"><option value="10">10</option>
+<option selected="selected" value="25">25</option>
+<option value="50">50 (must logon)</option>
+</select></td><td colspan="2">&nbsp;</td></tr></tbody></table>
+</td></tr><tr bgcolor="#fbedbb"><td><a name="xx0xx"></a><table bgcolor="#fbedbb" border="0" cellpadding="2" width="100%"><tbody><tr><td>&nbsp;</td><td class="messagetitle">Msgs 1 to 25 of 39 (Total: 39) (<a href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1646005">Refresh</a>)</td><td align="right" nowrap="nowrap"><font class="messagetitle"><span class="HoverLink">First</span> <span class="HoverLink">Prev</span> <a class="HoverLink" name="HoverNL" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1646005&amp;fr=26">Next</a> <span class="HoverLink">&nbsp;&nbsp;&nbsp;&nbsp;</span> </font></td></tr></tbody></table>
+</td></tr><tr bgcolor="white"><td><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td colspan="2" bgcolor="#fbedbb" width="70%"><table border="0" cellpadding="2" cellspacing="0" width="100%"><tbody><tr><td class="messagetitle">Subject&nbsp;</td></tr></tbody></table></td><td bgcolor="#fbedbb" width="140"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="1" width="1"></td></tr><tr><td class="messagetitle">Author&nbsp;</td></tr><tr><td><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="1" width="1"></td></tr></tbody></table></td><td bgcolor="#fbedbb" width="12%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="1" width="1"></td></tr><tr><td class="messagetitle" align="right">Date&nbsp;</td></tr><tr><td><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="1" width="1"></td></tr></tbody></table></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr><tr id="1876162_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1876162xx"></a><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1876162" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1876162#xx1876162xx"><b>Driver to GUI-program</b></a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=3567608"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle"><b>liquid_ice12345</b>&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle"><b>15:49 3 Feb '07</b>&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1876177_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1876177xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="18"><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1876177" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1876177#xx1876177xx">Re: Driver to GUI-program</a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=2578587"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle">Bruno van Dooren&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle">16:05 3 Feb '07&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr><tr height="1"><td colspan="4" bgcolor="#ff9900"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" height="1" width="1"></td></tr><tr id="1859821_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1859821xx"></a><img src="kmdf_osr_usb_fx2.asp_files/news_question.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1859821" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1859821#xx1859821xx"><b>Question on setting the bar graph state</b></a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=3224162"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle"><b>dancgarciabiometrics</b>&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle"><b>12:50 24 Jan '07</b>&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1860023_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1860023xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="18"><img src="kmdf_osr_usb_fx2.asp_files/news_answer.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1860023" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1860023#xx1860023xx">Re: Question on setting the bar graph state</a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=2578587"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle">Bruno van Dooren&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle">14:53 24 Jan '07&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1860049_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1860049xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="36"><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1860049" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1860049#xx1860049xx">Re: Question on setting the bar graph state</a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=3224162"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle">dancgarciabiometrics&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle">15:10 24 Jan '07&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1860121_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1860121xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="54"><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1860121" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1860121#xx1860121xx">Re: Question on setting the bar graph state</a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=2578587"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle">Bruno van Dooren&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle">15:51 24 Jan '07&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1860137_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1860137xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="72"><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1860137" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1860137#xx1860137xx">Re: Question on setting the bar graph state</a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=3224162"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle">dancgarciabiometrics&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle">16:01 24 Jan '07&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr><tr height="1"><td colspan="4" bgcolor="#ff9900"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" height="1" width="1"></td></tr><tr id="1827643_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1827643xx"></a><img src="kmdf_osr_usb_fx2.asp_files/news_question.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1827643" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1827643#xx1827643xx"><b>Unable to configure pipes</b></a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=916500"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle"><b>Jain Mohit</b>&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle"><b>0:46 4 Jan '07</b>&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr><tr height="1"><td colspan="4" bgcolor="#ff9900"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" height="1" width="1"></td></tr><tr id="1759001_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1759001xx"></a><img src="kmdf_osr_usb_fx2.asp_files/news_question.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1759001" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1759001#xx1759001xx"><b>KMDF to UMDF USB driver on the horizon? :-)</b></a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=3534906"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle"><b>hpmuc</b>&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle"><b>12:26 15 Nov '06</b>&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr><tr height="1"><td colspan="4" bgcolor="#ff9900"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" height="1" width="1"></td></tr><tr id="1686939_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1686939xx"></a><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1686939" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1686939#xx1686939xx"><b>Isochronous Pipe</b></a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=1688579"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle"><b>osfp7</b>&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle"><b>4:58 27 Sep '06</b>&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1693088_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1693088xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="18"><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1693088" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1693088#xx1693088xx">Re: Isochronous Pipe</a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=2578587"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle">Bruno van Dooren&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle">17:04 1 Oct '06&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr><tr height="1"><td colspan="4" bgcolor="#ff9900"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" height="1" width="1"></td></tr><tr id="1684238_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1684238xx"></a><img src="kmdf_osr_usb_fx2.asp_files/news_question.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1684238" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1684238#xx1684238xx"><b>Reading and Writing</b></a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=216826"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle"><b>kelvincannon</b>&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle"><b>16:59 25 Sep '06</b>&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1686077_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1686077xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="18"><img src="kmdf_osr_usb_fx2.asp_files/news_answer.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1686077" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1686077#xx1686077xx">Re: Reading and Writing</a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=2578587"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle">Bruno van Dooren&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle">15:25 26 Sep '06&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr><tr height="1"><td colspan="4" bgcolor="#ff9900"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" height="1" width="1"></td></tr><tr id="1645917_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1645917xx"></a><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1645917" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1645917#xx1645917xx"><b>Using Isochronous pipes</b></a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=3253281"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle"><b>jhofer@bhware</b>&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle"><b>18:03 28 Aug '06</b>&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1646005_h0" bgcolor="#99ccff"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1646005xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="18"><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%">Re: Using Isochronous pipes</td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=9484"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle" color="darkblue">Jerry Evans&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle" color="darkblue">20:06 28 Aug '06&nbsp;</font></td></tr>
+<tr id="1646005_h1"><td colspan="4" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="18"><img src="kmdf_osr_usb_fx2.asp_files/news_blank.gif" align="absmiddle">&nbsp;</td><td bgcolor="#d5eaff" width="100%"><table border="0" cellpadding="0" cellspacing="5" width="100%"><tbody><tr><td><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td colspan="2"><font class="messagecontent">Here's a quote from one of the DDK wizards (Doron Holan) on the OSR mailing list. <br><br>"KMDF
+does not support ISO transfers using it's read/write pipe routines
+WdfUsbTargetPipeFormatRequestForWrite/
+WdfUsbTargetPipeFormatRequestForRead nor with the continuous reader.
+KMDF does support the continuous reader on INT or BULK pipes. <br><br>You
+can get around this restriction of no IOSCH support by using
+WdfUsbTargetDeviceSendUrbSynchronously/WdfUsbTargetDeviceFormatRequestForUrb
+and formatting your own URB for the transfer. KMDF will create a
+WDFUSBPIPE for each isoch endpoint when the appropriate interface has
+been selected. Since the WDFUSBPIPE handle is basically a WDFIOTARGET
+handle with special formatting, rolling your own reader is rather
+trivial and the synchronization of starting/stopping it can be done
+with calls to WdfIoTargetStop/Start.<br><br>So in conclusion, you can use KMDF to read/write your ISO endpoints, it just takes a little bit more work to do so."<br><br><br>"There are no samples demonstrating ISO transfers b/c ISO<br>endpoints are not very common in USB devices anymore since usb 2.0 bus<br>speeds + BULK can do the same job w/out lossy data.  You just need to<br>setup the ISO URB buffer appropriately and then call the KMDF DDIs I<br>mentioned to get a transfer sent."<br><br>HTH <br><br>Jerry.<br><br><br> <br>&nbsp;</font></td></tr><tr valign="top"><td class="messagetitle">[<a href="http://www.codeproject.com/script/profile/logon.asp?ct=%2Fsystem%2Fkmdf%5Fosr%5Fusb%5Ffx2%2Easp">Sign in</a> | <a href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1646005&amp;tid=1645917#xx1646005xx" title="View only messages within this thread">View Thread</a> | <a href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?msg=1646005#xx1646005xx" title="Get the URL for this message">Get Link</a>]</td><td class="messagetitle" align="right"></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr><tr height="1"><td colspan="4" bgcolor="#ff9900"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" height="1" width="1"></td></tr><tr id="1640077_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1640077xx"></a><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1640077" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1640077#xx1640077xx"><b>Application code for KMDF-calls</b></a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=3301443"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle"><b>R.Geisler</b>&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle"><b>5:34 24 Aug '06</b>&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr><tr height="1"><td colspan="4" bgcolor="#ff9900"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" height="1" width="1"></td></tr><tr id="1619515_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1619515xx"></a><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1619515" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1619515#xx1619515xx"><b>Sources code of the demo application</b></a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=1688579"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle"><b>osfp7</b>&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle"><b>10:28 10 Aug '06</b>&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1624742_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1624742xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="18"><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1624742" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1624742#xx1624742xx">Re: Sources code of the demo application</a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=2578587"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle">Bruno van Dooren&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle">14:50 14 Aug '06&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1641315_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1641315xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="18"><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1641315" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1641315#xx1641315xx">Re: Sources code of the demo application</a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=2578587"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle">Bruno van Dooren&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle">15:32 24 Aug '06&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1650549_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1650549xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="36"><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1650549" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1650549#xx1650549xx">Re: Sources code of the demo application</a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=1688579"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle">osfp7&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle">11:55 31 Aug '06&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr><tr height="1"><td colspan="4" bgcolor="#ff9900"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" height="1" width="1"></td></tr><tr id="1619005_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1619005xx"></a><img src="kmdf_osr_usb_fx2.asp_files/news_question.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1619005" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1619005#xx1619005xx"><b>Sources of demo application and dll</b></a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=3256583"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle"><b>mangou6</b>&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle"><b>5:50 10 Aug '06</b>&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1627479_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1627479xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="18"><img src="kmdf_osr_usb_fx2.asp_files/news_answer.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1627479" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1627479#xx1627479xx">Re: Sources of demo application and dll</a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=2578587"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle">Bruno van Dooren&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle">9:06 16 Aug '06&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr><tr height="1"><td colspan="4" bgcolor="#ff9900"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" height="1" width="1"></td></tr><tr id="1588952_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1588952xx"></a><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1588952" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1588952#xx1588952xx"><b>USB device driver query</b></a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=2425460"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle"><b>Chandrakantt</b>&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle"><b>9:09 21 Jul '06</b>&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr><tr height="1"><td colspan="4" bgcolor="#ff9900"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" height="1" width="1"></td></tr><tr id="1453313_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1453313xx"></a><img src="kmdf_osr_usb_fx2.asp_files/news_question.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1453313" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1453313#xx1453313xx"><b>Source of demo application</b></a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=2300359"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle"><b>coklik</b>&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle"><b>9:29 18 Apr '06</b>&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="6" width="1"></td></tr><tr id="1454067_h0" bgcolor="#fef9e7"><td width="70%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td bgcolor="white"><a name="xx1454067xx"></a><img src="kmdf_osr_usb_fx2.asp_files/ind.gif" height="1" width="18"><img src="kmdf_osr_usb_fx2.asp_files/news_answer.gif" align="absmiddle">&nbsp;</td>
+<td class="messagetitle" width="100%"><a class="messagetitle" id="DynMessLink" name="1454067" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1454067#xx1454067xx">Re: Source of demo application</a></td></tr></tbody></table></td><td nowrap="nowrap" valign="bottom"><a href="http://www.codeproject.com/script/profile/whos_who.asp?id=2578587"><img src="kmdf_osr_usb_fx2.asp_files/userinfo.gif" title="Click for User Profile" border="0" height="15" width="14"></a>&nbsp;</td><td nowrap="nowrap" width="140"><font class="messagetitle">Bruno van Dooren&nbsp;</font></td><td align="right" nowrap="nowrap" width="12%"><font class="messagetitle">16:55 18 Apr '06&nbsp;</font></td></tr>
+<tr><td colspan="4"><img src="kmdf_osr_usb_fx2.asp_files/t.gif" border="0" height="5" width="1"></td></tr></tbody></table></td></tr><tr bgcolor="#fbedbb"><td><table cellpadding="2" width="100%"><tbody><tr><td class="messagetitle">Last Visit: 2:59 Monday 2nd April, 2007</td><td align="right" nowrap="nowrap"><font class="messagetitle"><span class="HoverLink">First</span> <span class="HoverLink">Prev</span> <a class="HoverLink" name="HoverNL" href="http://www.codeproject.com/system/kmdf_osr_usb_fx2.asp?df=100&amp;forumid=286428&amp;exp=0&amp;select=1646005&amp;fr=26">Next</a> <span class="HoverLink">&nbsp;&nbsp;&nbsp;&nbsp;</span> </font></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>
+</div><p class="smallText"><img src="kmdf_osr_usb_fx2.asp_files/news_general.gif" align="absmiddle"> General comment &nbsp;&nbsp; <img src="kmdf_osr_usb_fx2.asp_files/news_info.gif" align="absmiddle"> News / Info &nbsp;&nbsp; <img src="kmdf_osr_usb_fx2.asp_files/news_question.gif" align="absmiddle"> Question &nbsp;&nbsp; <img src="kmdf_osr_usb_fx2.asp_files/news_answer.gif" align="absmiddle"> Answer &nbsp;&nbsp; <img src="kmdf_osr_usb_fx2.asp_files/news_game.gif" align="absmiddle"> Joke / Game &nbsp;&nbsp; <img src="kmdf_osr_usb_fx2.asp_files/news_sticky.gif" align="absmiddle"> Admin message</p>
+<br>
+
+
+<table cellspacing="5" width="100%">
+<tbody><tr valign="top"><td class="smallText">
+
+Updated: 30 Mar 2006
+</td><td class="SmallText" align="right">
+Article content copyright Bruno van Dooren, 2006<br>
+everything else Copyright © <a href="mailto:webmaster@codeproject.com">CodeProject</a>, 1999-2007.
+
+<br>
+Web18 |
+<a href="http://www.codeproject.com/info/MediaKit">Advertise on The Code Project</a> | <a href="http://www.codeproject.com/info/privacy.asp">Privacy</a>
+
+</td></tr>
+</tbody></table>
+
+</td></tr></tbody></table>
+
+
+<script type="text/javascript" src="kmdf_osr_usb_fx2.asp_files/front.gif"></script>
+<br>
+<center>
+<table border="0" cellpadding="0" cellspacing="0" width="95%">
+<tbody><tr><td bgcolor="#ff9900" height="1"><img src="kmdf_osr_usb_fx2.asp_files/space.gif" height="1"></td></tr>
+<tr>
+<td align="center"><font size="1">
+
+<a href="http://www.theultimatetoolbox.com/">The Ultimate Toolbox</a> &#8226;
+<a href="http://www.aspalliance.com/">ASP Alliance</a> &#8226;
+<a href="http://www.developerfusion.co.uk/">Developer Fusion</a> &#8226;
+<a href="http://www.developersdex.com/">Developersdex</a> &#8226;
+<a href="http://www.devguru.com/">DevGuru</a> &#8226;
+<a href="http://www.programmersheaven.com/">Programmers Heaven</a> &#8226;
+<a href="http://www.planet-source-code.com/">Planet Source Code</a> &#8226;
+<a href="http://www.tek-tips.com/">Tek-Tips Forums</a> &#8226;
+
+</font>	
+</td>
+</tr>
+</tbody></table>
+</center>
+</td></tr></tbody></table><div style="position: absolute; visibility: visible; background-color: rgb(72, 142, 0); z-index: 101; width: 298px; height: 22px; top: 152px; left: 714px;"><div style="border: 0pt none rgb(72, 142, 0); overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 40px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 2px;">Help!</div><div style="border: 0pt none rgb(72, 142, 0); overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 55px; height: 16px; padding-left: 5px; padding-top: 2px; left: 50px; top: 2px;">Articles</div><div style="border: 0pt none rgb(72, 142, 0); overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 115px; height: 16px; padding-left: 5px; padding-top: 2px; left: 113px; top: 2px;">Message Boards</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 55px; height: 16px; padding-left: 5px; padding-top: 2px; left: 236px; top: 2px;">Lounge</div></div><div style="position: absolute; visibility: hidden; background-color: rgb(72, 142, 0); z-index: 102; width: 194px; height: 98px; top: 0pt; left: 0pt;"><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 185px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 2px;">What is 'The Code Project'?</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 185px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 21px;">General FAQ</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 185px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 40px;">Post a Question</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 185px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 59px;">Site Directory</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 185px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 78px;">About Us</div></div><div style="position: absolute; visibility: hidden; background-color: rgb(72, 142, 0); z-index: 102; width: 154px; height: 136px; top: 0pt; left: 0pt;"><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 145px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 2px;">Latest</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 145px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 21px;">Most Popular</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 145px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 40px;">Search</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 145px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 59px;">Site Directory</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 145px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 78px;">Submit an Article</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 145px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 97px;">Update an Article</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 145px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 116px;">Article Competition</div></div><div style="position: absolute; visibility: hidden; background-color: rgb(72, 142, 0); z-index: 102; width: 174px; height: 459px; top: 0pt; left: 0pt;"><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 2px;">Windows Vista</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 21px;">Visual C++</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 40px;">ATL / WTL / STL</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 59px;">COM</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 78px;">C++/CLI</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 97px;">C#</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 116px;">ASP.NET</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 135px;">VB.NET</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 154px;">Web Development</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 173px;">.NET Framework</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 192px;">Mobile Development</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 211px;">SQL / ADO / ADO.NET</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 230px;">XML / XSL</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 249px;">OS / SysAdmin</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 268px;">Work Issues</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 287px;">Article Requests</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 306px;">Collaboration</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 325px;">General Discussions</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 344px;">Hardware</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 363px;">Algorithms / Math</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 382px;">Design and Architecture</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 401px;">Subtle Bugs</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 420px;">Suggestions</div><div style="overflow: hidden; position: absolute; visibility: inherit; cursor: pointer; background-color: rgb(72, 142, 0); color: rgb(255, 255, 255); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bold; font-style: normal; text-align: left; width: 165px; height: 16px; padding-left: 5px; padding-top: 2px; left: 2px; top: 439px;">The Soapbox</div></div></body></html>

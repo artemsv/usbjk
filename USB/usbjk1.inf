@@ -1,0 +1,121 @@
+;/*++
+;
+;Copyright (c) Microsoft Corporation.  All rights reserved.
+;
+;   THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+;   KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+;   IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
+;   PURPOSE.
+;
+;Module Name:
+;
+;    usbjk.INF
+;
+;Abstract:
+;    Installation inf for OSR USB-FX2 Learning Kit
+;
+;--*/
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=Sample
+ClassGuid={78A1C341-4539-11d3-B88D-00C04FAD5171}
+Provider=%MSFT%
+DriverVer=03/21/2007,1.0.0.0
+CatalogFile=KmdfSamples.cat
+
+
+; ================= Class section =====================
+
+[ClassInstall32]
+Addreg=SampleClassReg     
+
+[SampleClassReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-5
+
+
+; ================= Device section =====================
+
+[Manufacturer]
+%MfgName%=Microsoft,NTx86
+
+; For XP and later
+[Microsoft.NTx86]
+%USB\VID_045E&PID_930A.DeviceDesc%=usbjk.Dev, USB\VID_1111&PID_2222
+%Switch.DeviceDesc%=Switch.Dev, {6FDE7521-1B65-48ae-B628-80BE62016026}\OsrUsbFxRawPdo
+
+
+[usbjk.Dev.NT]
+CopyFiles=usbjk.Files.Ext
+
+
+[Switch.Dev.NT]
+;dummy section
+
+[Switch.Dev.NT.Services]
+AddService = , %SPSVCINST_ASSOCSERVICE%, 
+
+[usbjk.Dev.NT.Services]
+Addservice = usbjk, %SPSVCINST_ASSOCSERVICE%, usbjk.AddService
+
+[usbjk.AddService]
+DisplayName    = %usbjk.SvcDesc%
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 3                  ; SERVICE_DEMAND_START
+ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %10%\System32\Drivers\usbjk.sys
+AddReg         = usbjk.AddReg
+LoadOrderGroup = Base
+
+[usbjk.AddReg]
+HKR, Parameters\Wdf, VerboseOn,       0x00010001, 1
+HKR, Parameters\Wdf, VerifierOn,      0x00010001, 1
+HKR, Parameters\Wdf, DbgBreakOnError, 0x00010001, 1
+
+[usbjk.Files.Ext]
+usbjk.sys
+
+[SourceDisksNames]
+1=%Disk_Description%,,,
+
+[SourceDisksFiles]
+usbjk.sys = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+;-------------- WDF Coinstaller installation
+
+[DestinationDirs]
+CoInstaller_CopyFiles = 11
+
+[usbjk.Dev.NT.CoInstallers]
+AddReg=CoInstaller_AddReg
+CopyFiles=CoInstaller_CopyFiles
+
+[CoInstaller_CopyFiles]
+WdfCoinstaller01001.dll
+
+[SourceDisksFiles]
+WdfCoinstaller01001.dll=1 ; make sure the number matches with SourceDisksNames
+
+[CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoinstaller01001.dll,WdfCoInstaller"
+
+[usbjk.Dev.NT.Wdf]
+KmdfService = usbjk, usbjk_wdfsect
+[usbjk_wdfsect]
+KmdfLibraryVersion = 1.0
+
+;---------------------------------------------------------------;
+
+[Strings]
+MSFT="Microsoft"
+MfgName="OSR"
+Disk_Description="osrusbfx2 Installation Disk"
+USB\VID_045E&PID_930A.DeviceDesc="WDF Driver for AVR USB Device"
+usbjk.SvcDesc="WDF Driver for AVR USB Device"
+ClassName       = "Sample Device"
+Switch.DeviceDesc = "osrusbfx2 RawPdo For Switch"
+SPSVCINST_ASSOCSERVICE= 0x00000002

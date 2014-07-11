@@ -1,0 +1,13 @@
+﻿Installing assembly 'D:\Projects\USBJK\USBJK_INSTALL\Service\DevMon.exe'.
+Affected parameters are:
+   logtoconsole = 
+   assemblypath = D:\Projects\USBJK\USBJK_INSTALL\Service\DevMon.exe
+   logfile = D:\Projects\USBJK\USBJK_INSTALL\Service\DevMon.InstallLog
+Installing service DevMon...
+Creating EventLog source DevMon in log Application...
+Rolling back assembly 'D:\Projects\USBJK\USBJK_INSTALL\Service\DevMon.exe'.
+Affected parameters are:
+   logtoconsole = 
+   assemblypath = D:\Projects\USBJK\USBJK_INSTALL\Service\DevMon.exe
+   logfile = D:\Projects\USBJK\USBJK_INSTALL\Service\DevMon.InstallLog
+Restoring event log to previous state for source DevMon.

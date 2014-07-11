@@ -1,0 +1,21 @@
+﻿Installing assembly 'D:\Projects\USBJK\ServMon\Output\DevMon.exe'.
+Affected parameters are:
+   logtoconsole = 
+   assemblypath = D:\Projects\USBJK\ServMon\Output\DevMon.exe
+   logfile = D:\Projects\USBJK\ServMon\Output\DevMon.InstallLog
+Installing service DevMon...
+Creating EventLog source DevMon in log Application...
+Rolling back assembly 'D:\Projects\USBJK\ServMon\Output\DevMon.exe'.
+Affected parameters are:
+   logtoconsole = 
+   assemblypath = D:\Projects\USBJK\ServMon\Output\DevMon.exe
+   logfile = D:\Projects\USBJK\ServMon\Output\DevMon.InstallLog
+Restoring event log to previous state for source DevMon.
+Uninstalling assembly 'D:\Projects\USBJK\ServMon\Output\DevMon.exe'.
+Affected parameters are:
+   logtoconsole = 
+   assemblypath = D:\Projects\USBJK\ServMon\Output\DevMon.exe
+   logfile = D:\Projects\USBJK\ServMon\Output\DevMon.InstallLog
+Removing EventLog source DevMon.
+Service DevMon is being removed from the system...
+Service DevMon was successfully removed from the system.

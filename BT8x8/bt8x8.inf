@@ -1,0 +1,127 @@
+;
+; bt8x8.inf -- setup file
+;
+; Copyright (c) 2004 
+; Manufacturer: PENTACON Corporation
+ 
+ 
+[Version] 
+Signature = "$Windows NT$" 
+Class = Media
+ClassGuid = {4d36e96c-e325-11ce-bfc1-08002be10318} 
+Provider=%SSI% 
+CatalogFile=catalog.cat
+DriverVer= 11/03/2005,4.1.0.2
+
+[DestinationDirs] 
+bt8x8_Video.Files.x86_12 = 12 
+bt8x8_Audio.Files.x86_12 = 12 
+
+[SourceDisksNames.x86]
+0=%Desc_x860%
+
+[SourceDisksFiles.x86]
+bt8x8.sys=0,, 
+
+[Manufacturer] 
+%SSI%=SSI
+
+[SSI]
+%bt8x8_VideoDesc_Bt848%=bt8x8_Video_Inst,PCI\VEN_109E&DEV_0350
+%bt8x8_VideoDesc_Bt849%=bt8x8_Video_Inst,PCI\VEN_109E&DEV_0351
+%bt8x8_VideoDesc_Bt878%=bt8x8_Video_Inst,PCI\VEN_109E&DEV_036E
+%bt8x8_VideoDesc_Bt879%=bt8x8_Video_Inst,PCI\VEN_109E&DEV_036F
+
+%bt8x8_AudioDesc_Bt878%=bt8x8_Audio_Inst,PCI\VEN_109E&DEV_0878
+%bt8x8_AudioDesc_Bt879%=bt8x8_Audio_Inst,PCI\VEN_109E&DEV_0879
+
+[bt8x8_Video_Inst.ntx86] 
+CopyFiles = bt8x8_Video.Files.x86_12 
+
+[bt8x8_Video_Inst.ntx86.Services] 
+AddService = bt8x8,0x00000002,bt8x8_Video_Service_Instx86, bt8x8_Video_EventLog_Inst 
+
+[bt8x8_Video_Service_Instx86] 
+ServiceType = %SERVICE_KERNEL_DRIVER% 
+StartType = %SERVICE_DEMAND_START% 
+ErrorControl = %SERVICE_ERROR_IGNORE% 
+ServiceBinary = %12%\bt8x8.sys 
+
+
+;[bt8x8_Video_Inst.ntx86.Interfaces] 
+;AddInterface ={669C26A6-1300-4824-9097-9DF6BB27F000},IVideoBT,bt8x8_Videontx86Interface0
+;[bt8x8_Videontx86Interface0]
+
+[bt8x8_Video.Files.x86_12] 
+bt8x8.sys
+
+[bt8x8_Video_EventLog_Inst] 
+AddReg = bt8x8_Video_EventLog_Inst.AddReg 
+ 
+[bt8x8_Video_EventLog_Inst.AddReg] 
+HKR,,EventMessageFile,%REG_EXPAND_SZ%,"%%SystemRoot%%\System32\IoLogMsg.dll" 
+HKR,,TypesSupported,%REG_DWORD%,7
+
+
+;
+; Audio block
+;
+[bt8x8_Audio_Inst.ntx86] 
+CopyFiles = bt8x8_Audio.Files.x86_12 
+
+;
+;!!!!!!!!!!!!!!!!!!
+;
+[bt8x8_Audio_Inst.ntx86.Services] 
+AddService = bt8x8,0x00000002,bt8x8_Audio_Service_Instx86, bt8x8_Audio_EventLog_Inst
+
+[bt8x8_Audio_Service_Instx86] 
+ServiceType = %SERVICE_KERNEL_DRIVER% 
+StartType = %SERVICE_DEMAND_START% 
+ErrorControl = %SERVICE_ERROR_IGNORE% 
+ServiceBinary = %12%\bt8X8.sys 
+
+
+;[bt8x8_Audio_Inst.ntx86.Interfaces] 
+;AddInterface ={02F0D52C-A8EE-43a8-80FF-723B960D80DE},IAudioBT,bt8x8_Audiontx86Interface0
+;[bt8x8_Audiontx86Interface0]
+
+[bt8x8_Audio.Files.x86_12] 
+bt8x8.sys
+
+[bt8x8_Audio_EventLog_Inst] 
+AddReg = bt8x8_Audio_EventLog_Inst.AddReg 
+ 
+[bt8x8_Audio_EventLog_Inst.AddReg] 
+HKR,,EventMessageFile,%REG_EXPAND_SZ%,"%%SystemRoot%%\System32\IoLogMsg.dll" 
+HKR,,TypesSupported,%REG_DWORD%,7
+
+
+[Strings] 
+
+;  *******Localizable Strings******* 
+SSI = "Sokol Software Inc." 
+Desc_x860 = "Artem Software Multimedia driver"
+bt8x8_VideoDesc_Bt848 = "Artem Software Bt848 Video Capture Device"
+bt8x8_VideoDesc_Bt849 = "Artem Software Bt849 Video Capture Device"
+bt8x8_VideoDesc_Bt878 = "Artem Software Bt878 Video Capture Device"
+bt8x8_VideoDesc_Bt879 = "Artem Software Bt879 Video Capture Device"
+bt8x8_AudioDesc_Bt878 = "Artem Software Bt878 Audio Capture Device"
+bt8x8_AudioDesc_Bt879 = "Artem Software Bt879 Audio Capture Device"
+
+;  *******Non Localizable Strings******* 
+
+SERVICE_BOOT_START = 0x0 
+SERVICE_SYSTEM_START = 0x1 
+SERVICE_AUTO_START = 0x2 
+SERVICE_DEMAND_START = 0x3 
+SERVICE_DISABLED = 0x4 
+
+SERVICE_KERNEL_DRIVER = 0x1 
+SERVICE_ERROR_IGNORE = 0x0 
+SERVICE_ERROR_NORMAL = 0x1 
+SERVICE_ERROR_SEVERE = 0x2 
+SERVICE_ERROR_CRITICAL = 0x3 
+
+REG_EXPAND_SZ = 0x00020000 
+REG_DWORD = 0x00010001 

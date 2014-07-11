@@ -1,0 +1,50 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.2	//
+ALLOC_TYPE	Unicode.h	/^	enum ALLOC_TYPE {Empty, FromCode, FromPaged, FromNonPaged};$/;"	g	class:CUString
+CUString	Unicode.cpp	/^CUString::CUString(PCWSTR pWideString) {$/;"	f	class:CUString
+CUString	Unicode.cpp	/^CUString::CUString(ULONG value) {$/;"	f	class:CUString
+CUString	Unicode.cpp	/^CUString::CUString(const CUString& orig) {	\/\/ copy constructor (required)$/;"	f	class:CUString
+CUString	Unicode.cpp	/^CUString::CUString(const char* pAnsiString) {$/;"	f	class:CUString
+CUString	Unicode.h	/^	CUString() {Init(); }	\/\/ constructor relies on internal Init function$/;"	f	class:CUString
+CUString	Unicode.h	/^class CUString {$/;"	c
+CreateDevice	driver.c	/^NTSTATUS CreateDevice(IN PDRIVER_OBJECT pDriverObject, $/;"	f
+CreateDevice	driver.cpp	/^NTSTATUS CreateDevice(IN PDRIVER_OBJECT pDriverObject, IN ULONG ulDeviceNumber)$/;"	f
+DEVICE_EXTENSION	driver.h	/^DEVICE_EXTENSION, * PDEVICE_EXTENSION;$/;"	t
+DeviceNumber	driver.h	/^	ULONG DeviceNumber;$/;"	m	struct:
+DispatchClose	driver.cpp	/^NTSTATUS DispatchClose(IN PDEVICE_OBJECT pDevObj, IN PIRP pIrp)$/;"	f
+DispatchCreate	driver.cpp	/^NTSTATUS DispatchCreate(IN PDEVICE_OBJECT pDevObj, IN PIRP pIrp)$/;"	f
+DispatchRead	driver.cpp	/^NTSTATUS DispatchRead(IN PDEVICE_OBJECT pDevObj, IN PIRP pIrp)$/;"	f
+DispatchWrite	driver.cpp	/^NTSTATUS DispatchWrite(IN PDEVICE_OBJECT pDevObj, IN PIRP pIrp)$/;"	f
+DriverEntry	driver.c	/^NTSTATUS DriverEntry(IN PDRIVER_OBJECT pDriverObject,$/;"	f
+DriverEntry	driver.cpp	/^extern "C" DriverEntry($/;"	f
+DriverUnload	driver.c	/^VOID DriverUnload(IN PDRIVER_OBJECT pDriverObject)$/;"	f
+DriverUnload	driver.cpp	/^VOID DriverUnload(IN PDRIVER_OBJECT pDriverObject)$/;"	f
+Empty	Unicode.h	/^	enum ALLOC_TYPE {Empty, FromCode, FromPaged, FromNonPaged};$/;"	e	enum:CUString::ALLOC_TYPE
+Free	Unicode.cpp	/^void CUString::Free() {$/;"	f	class:CUString
+FromCode	Unicode.h	/^	enum ALLOC_TYPE {Empty, FromCode, FromPaged, FromNonPaged};$/;"	e	enum:CUString::ALLOC_TYPE
+FromNonPaged	Unicode.h	/^	enum ALLOC_TYPE {Empty, FromCode, FromPaged, FromNonPaged};$/;"	e	enum:CUString::ALLOC_TYPE
+FromPaged	Unicode.h	/^	enum ALLOC_TYPE {Empty, FromCode, FromPaged, FromNonPaged};$/;"	e	enum:CUString::ALLOC_TYPE
+Init	Unicode.cpp	/^void CUString::Init() {$/;"	f	class:CUString
+Length	Unicode.h	/^	USHORT Length() {return uStr.Length\/2;}$/;"	f	class:CUString
+PDEVICE_EXTENSION	driver.h	/^DEVICE_EXTENSION, * PDEVICE_EXTENSION;$/;"	t
+aType	Unicode.h	/^	ALLOC_TYPE	aType;		\/\/ where buffer is allocated$/;"	m	class:CUString
+deviceBuffer	driver.h	/^	PVOID deviceBuffer;$/;"	m	struct:
+deviceBufferSize	driver.h	/^	ULONG deviceBufferSize;$/;"	m	struct:
+max	Unicode.cpp	11;"	d	file:
+operator +	Unicode.cpp	/^CUString CUString::operator+(const CUString& rop) const {$/;"	f	class:CUString
+operator +=	Unicode.cpp	/^CUString& CUString::operator+=(const CUString& rop) {$/;"	f	class:CUString
+operator =	Unicode.cpp	/^CUString CUString::operator=(const CUString& rop) {	\/\/ assignment operator overload (required)$/;"	f	class:CUString
+operator ==	Unicode.cpp	/^BOOLEAN CUString::operator ==(const CUString& rop) const {$/;"	f	class:CUString
+operator PWSTR	Unicode.cpp	/^CUString::operator PWSTR() const {$/;"	f	class:CUString
+operator ULONG	Unicode.cpp	/^CUString::operator ULONG() const {$/;"	f	class:CUString
+operator UNICODE_STRING &	Unicode.cpp	/^CUString::operator UNICODE_STRING &() {$/;"	f	class:CUString
+operator []	Unicode.cpp	/^WCHAR& CUString::operator[](int idx) {$/;"	f	class:CUString
+pDevice	driver.h	/^	PDEVICE_OBJECT pDevice;$/;"	m	struct:
+uStr	Unicode.h	/^	UNICODE_STRING uStr;	\/\/ W2K kernel structure for Unicode string$/;"	m	class:CUString
+ustrDeviceName	driver.h	/^	CUString ustrDeviceName;$/;"	m	struct:
+ustrSymLinkName	driver.h	/^	CUString ustrSymLinkName;$/;"	m	struct:
+~CUString	Unicode.cpp	/^CUString::~CUString() {$/;"	f	class:CUString

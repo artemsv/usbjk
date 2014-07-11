@@ -1,0 +1,143 @@
+BUILD: Examining d:\projects\usbjk\usb\src directory for files to compile.
+before AssemblyIdentity_AfterReadAllSources
+after AssemblyIdentity_AfterReadAllSources
+skipping post pass 0 command
+Compiling and Linking d:\projects\usbjk\usb\src *************
+'nmake.exe /nologo BUILDMSG=Stop. -i BUILD_PASS=PASS2 LINKONLY=1 NOPASS0=1 MAKEDIR_RELATIVE_TO_BASEDIR= MAKEDIR_LOWERCASE=d:\projects\usbjk\usb\src'
+BUILDMSG: error BLD1007 : BROWSER_INFO defined in sources file - this is a user environment setting (d:\projects\usbjk\usb\src)
+d:\projects\usbjk\usb\src\objfre_wlh_x86\i386\echo.msg not found
+Microsoft (R) Windows (R) Resource Compiler Version 6.0.5724.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+.\usbjk.rc(40) : warning RC4003: not enough actual parameters for macro '_ANSISTRING'
+warnings in directory d:\projects\usbjk\usb\src
+d:\projects\usbjk\usb\src\.\usbjk.rc(40) : warning RC4003: not enough actual parameters for macro '_ANSISTRING'
+	cl.exe @d:\projects\usbjk\usb\src\objfre_wlh_x86\i386\cl.rsp
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 14.00.50727.220 for 80x86
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+cl /Fo"d:\projects\usbjk\usb\src\objfre_wlh_x86\i386/"
+   /FC
+   
+   
+   /Ii386
+   /I.
+   /Id:\projects\usbjk\usb\src\objfre_wlh_x86\i386
+   /IC:\WinDDK\6000\inc\api
+   /IC:\WinDDK\6000\inc\api
+   /IC:\WinDDK\6000\inc\ddk
+   /IC:\WinDDK\6000\inc\ddk
+   /IC:\WinDDK\6000\inc\wdf\kmdf\10
+   /IC:\WinDDK\6000\inc\crt
+   /D_X86_=1
+   /Di386=1
+   
+   /DSTD_CALL
+   /DCONDITION_HANDLING=1
+   
+   
+   /DNT_INST=0
+   /DWIN32=100
+   /D_NT1X_=100
+   /DWINNT=1
+   /D_WIN32_WINNT=0x0600
+   /DWINVER=0x0600
+   /D_WIN32_IE=0x0700
+   
+   
+   
+   /DWIN32_LEAN_AND_MEAN=1
+   /DDEVL=1
+   /D__BUILDMACHINE__=WinDDK
+   /DFPO=0
+   
+   /DNDEBUG
+   /D_DLL=1
+   /DNDEBUG
+   
+   /DNTDDI_VERSION=0x06000000
+   
+   
+   
+   
+   /c
+   /Zc:wchar_t-
+   /Zl
+   /Zp8
+   /Gy
+   /Gm-
+   -cbstring
+   /W3
+   /WX
+   /Gz
+   
+   
+   /hotpatch
+   /EHs-c-
+   
+   /GR-
+   /GF
+   /GS
+   /Zi
+   /Oxs
+   
+   /Oy-
+   /Zi
+   /Fdd:\projects\usbjk\usb\src\objfre_wlh_x86\i386\
+   /FRd:\projects\usbjk\usb\src\objfre_wlh_x86\i386\
+   
+   
+   -DKMDF_MAJOR_VERSION=01
+   -DKMDF_MINOR_VERSION=005
+   /FIC:\WinDDK\6000\inc\api\warning.h
+   
+   
+   .\usbjk.c .\utils.c 
+
+usbjk.c
+utils.c
+Generating Code...
+	link.exe /out:objfre_wlh_x86\i386\usbjk.sys /machine:ix86 @C:\DOCUME~1\Admin\LOCALS~1\Temp\nm28.tmp
+Microsoft (R) Incremental Linker Version 8.00.50727.220
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+/MERGE:_PAGE=PAGE 
+/MERGE:_TEXT=.text 
+/SECTION:INIT,d 
+/OPT:REF 
+/OPT:ICF 
+/IGNORE:4198,4010,4037,4039,4065,4070,4078,4087,4089,4221 
+/INCREMENTAL:NO 
+/FULLBUILD 
+/release 
+/NODEFAULTLIB 
+/WX 
+/debug 
+/debugtype:cv 
+/version:6.0 
+/osversion:6.0 
+/functionpadmin:5 
+/safeseh 
+/debug 
+/debugtype:cv,fixup 
+/pdbcompress 
+/STACK:0x40000,0x1000 
+/driver 
+/base:0x10000 
+/subsystem:native,6.00 
+/entry:FxDriverEntry@8 
+/out:objfre_wlh_x86\i386\usbjk.sys 
+objfre_wlh_x86\i386\usbjk.res 
+objfre_wlh_x86\i386\usbjk.obj 
+objfre_wlh_x86\i386\utils.obj 
+C:\WinDDK\6000\lib\wlh\i386\BufferOverflowK.lib 
+C:\WinDDK\6000\lib\wlh\i386\ntoskrnl.lib 
+C:\WinDDK\6000\lib\wlh\i386\hal.lib 
+C:\WinDDK\6000\lib\wlh\i386\wmilib.lib 
+C:\WinDDK\6000\lib\wdf\kmdf\i386\10\WdfLdr.lib 
+C:\WinDDK\6000\lib\wdf\kmdf\i386\10\WdfDriverEntry.lib 
+	bscmake.exe  -n -o "objfre_wlh_x86\i386\usbjk.bsc" @d:\projects\usbjk\usb\src\objfre_wlh_x86\i386\bscmake.rsp
+'bscmake.exe' is not recognized as an internal or external command,
+errors in directory d:\projects\usbjk\usb\src
+d:\projects\usbjk\usb\src\objfre_wlh_x86\i386\usbjk.sys : error 'bscmake.exe' is not recognized as an internal or external command,
+operable program or batch file.

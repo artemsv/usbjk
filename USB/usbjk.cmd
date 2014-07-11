@@ -1,0 +1,1 @@
+F:\WINDDK\3790.1830\tools\devcon\i386\devcon.exe install usbjk1.inf
